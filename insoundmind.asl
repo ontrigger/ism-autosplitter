@@ -98,13 +98,13 @@ start
 split
 {
 	if (vars.Unity["isEquipping"].Changed)
-    {		
+	{	
 		if(!vars.EquippableItemGot[vars.Unity["currentEquippedItem"].Current])
 		{
 			vars.EquippableItemGot[vars.Unity["currentEquippedItem"].Current] = true;
 			return settings[vars.Unity["currentEquippedItem"].Current];
 		}
-    }
+	}
 
 	foreach(string stat in vars.Stats)
 	{
