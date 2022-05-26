@@ -24,80 +24,65 @@ startup
 	18, 19, 20, 21, 22: C_Factory, C_Factory_env1, C_Factory_env2, C_Factory_Walls, C_Factory_splines
 	23, 24, 25, 26, 27: C_Forest, C_Forest_env1, C_Forest_env2, C_Forest_Splines, C_Forest_Walls
 	*/
-	vars.Levels = new Dictionary<string, dynamic>()
-	{
-		{ "mainmenu", new {
-			Label = "Main Menu",
-			Scenes = new List<int> { 1, 9 },
-			SettingEntry = false,
-			SettingExit = false,
-		}},
-		{ "building", new {
-			Label = "Building",
-			Scenes = new List<int> { 4, 5, 6 },
-			SettingEntry = false,
-			SettingExit = false
-		}},
-		{ "dtape", new {
-			Label = "Desmond's Tape",
-			Scenes = new List<int> { 28 },
-			SettingEntry = true,
-			SettingExit = true
-		}},
-		{ "vtape", new {
-			Label = "Virginia's Tape",
-			Scenes = new List<int> { 29 },
-			SettingEntry = true,
-			SettingExit = true
-		}},
-		{ "hm", new {
-			Label = "Homa-Mart",
-			Scenes = new List<int> { 10, 11, 12 },
-			SettingEntry = true,
-			SettingExit = true
-		}},
-		{ "atape", new {
-			Label = "Allen's Tape",
-			Scenes = new List<int> { 30 },
-			SettingEntry = "flaregun-name",
-			SettingExit = true
-		}},
-		{ "pi", new {
-			Label = "Point Icarus",
-			Scenes = new List<int> { 13, 14, 15, 16, 17 },
-			SettingEntry = "flaregun-name",
-			SettingExit = true
-		}},
-		{ "mtape", new {
-			Label = "Max's Tape",
-			Scenes = new List<int> { 31 },
-			SettingEntry = "lurepill-name",
-			SettingExit = true
-		}},
-		{ "of", new {
-			Label = "Old Factory",
-			Scenes = new List<int> { 18, 19, 20, 21, 22 },
-			SettingEntry = "lurepill-name",
-			SettingExit = true
-		}},
-		{ "ltape", new {
-			Label = "Lucas' Tape",
-			Scenes = new List<int> { 32 },
-			SettingEntry = "radio-name",
-			SettingExit = true
-		}},
-		{ "ep", new {
-			Label = "Elysium Park",
-			Scenes = new List<int> { 23, 24, 25, 26, 27 },
-			SettingEntry = "radio-name",
-			SettingExit = true
-		}},
-		{ "rtape", new {
-			Label = "Rainbow Tape",
-			Scenes = new List<int> { 33 },
-			SettingEntry = true,
-			SettingExit = true
-		}},
+	// asl be like
+	vars.LevelLabels = new Dictionary<string, string>() {
+		{"mainmenu", "Main Menu"}, 
+		{"building", "Building"}, 
+		{"dtape", "Desmond's Tape"}, 
+		{"vtape", "Virginia's Tape"}, 
+		{"hm", "Homa-Mart"},
+		{"atape", "Allen's Tape"},
+		{"pi", "Point Icarus"},
+		{"mtape", "Max's Tape"},
+		{"of", "Old Factory"},
+		{"ltape", "Lucas' Tape"},
+		{"ep", "Elysium Park"},
+		{"rtape", "Rainbow Tape"},
+	};
+
+	vars.LevelScenes = new Dictionary<string, List<int>>() {
+		{"mainmenu", new List<int> { 1, 9 }}, 
+		{"building", new List<int> { 4, 5, 6 }},
+		{"dtape", new List<int> { 28 }},
+		{"vtape", new List<int> { 29 }},
+		{"hm", new List<int> { 10, 11, 12 }},
+		{"atape", new List<int> { 30 }},
+		{"pi", new List<int> { 13, 14, 15, 16, 17 }},
+		{"mtape", new List<int> { 31 }},
+		{"of", new List<int> { 18, 19, 20, 21, 22 }},
+		{"ltape", new List<int> { 32 }},
+		{"ep", new List<int> { 23, 24, 25, 26, 27 }},
+		{"rtape", new List<int> { 33 }},
+	};
+
+	vars.LevelSettingEntry = new Dictionary<string, dynamic>() {
+		{"mainmenu", false}, 
+		{"building", false}, 
+		{"dtape", true},
+		{"vtape", true},
+		{"hm", true},
+		{"atape", "flaregun-name"},
+		{"pi", "flaregun-name"},
+		{"mtape", "lurepill-name"},
+		{"of", "lurepill-name"},
+		{"ltape", "radio-name"},
+		{"ep", "radio-name"},
+		{"rtape", true},
+	};
+
+	vars.LevelSettingExit = new Dictionary<string, bool>() {
+		{"mainmenu", false}, 
+		{"building", false}, 
+		{"dtape", true},
+		{"vtape", true},
+		{"hm", true},
+		{"atape", true},
+		{"pi", true},
+		{"mtape", true},
+		{"of", true},
+		{"ltape", true},
+		{"ep", true},
+		{"rtape", true},
 	};
 
 	vars.EquippableItemNames = new Dictionary<string, string>() 
@@ -113,50 +98,65 @@ startup
 	};
 
 	vars.DefaultSettings = new List<string>() {
-		"dtape_entry_any",		// Building 1/Desmonds Tape
-		"vtape_entry_any",		// Building 2
-		"hm_exit",				// Homa-Mart
-		"atape_entry_item",		// Building 3
-		"pi_exit",				// Point Icarus
-		"mtape_entry_item",		// Building 4
-		"of_exit",				// Old Factory
-		"ltape_entry_item",		// Building 5
-		"ep_exit",				// Elysium Park
-		"rtape_entry_any",		// Building 6
-		"rtape_exit"			// Agent Rainbow
+		"dtape_exit",		// Building 1/Desmonds Tape
+		"vtape_entry_any",	// Building 2
+		"hm_exit",			// Homa-Mart
+		"atape_entry_item",	// Building 3
+		"pi_exit",			// Point Icarus
+		"mtape_entry_item",	// Building 4
+		"of_exit",			// Old Factory
+		"ltape_entry_item",	// Building 5
+		"ep_exit",			// Elysium Park
+		"rtape_entry_any",	// Building 6
+		"rtape_exit"		// Agent Rainbow
 	};
 
 	// If we are loading a specific level (associated with multiple scenes - if any of the scenes are loading, then we are loading the level)
-	vars.LevelLoading = (Func<string, int, bool>)((level, loadingScene) => vars.Levels[level].Scenes.Contains(loadingScene));
+	vars.LevelHasScene = (Func<string, int, bool>)((level, sceneIndex) => vars.LevelScenes[level].Contains(sceneIndex));
+	vars.GetLevelFromScene = (Func<int, string>)((sceneIndex) => 
+	{
+		foreach(string key in vars.LevelScenes.Keys) 
+		{
+			if(vars.LevelHasScene(key, sceneIndex))
+			{
+				return key;
+			}	
+		}
+		return "";
+	});
 
 	settings.Add("level_entry_any", true, "Enter Level (First time, any item)");
 	settings.Add("level_entry_item", true, "Enter Level With Item (First time)");
 	settings.Add("level_exit", true, "Exit Level (First time)");
+	vars.LevelSplitsDone = new Dictionary<string, bool>();
 
 	var SHOW_SET_IN_LABEL = false;
-	foreach(KeyValuePair<string, dynamic> entry in vars.Levels)
+	foreach(string key in vars.LevelLabels.Keys)
 	{
 		// split for entering the level with any item for the first time
-		if((entry.Value.SettingEntry is Boolean && entry.Value.SettingEntry != false)
-			|| entry.Value.SettingEntry is String)
+		if((vars.LevelSettingEntry[key] is Boolean && vars.LevelSettingEntry[key] != false)
+			|| vars.LevelSettingEntry[key] is String)
 		{
-			string set = entry.Key + "_entry_any";
-			string label = SHOW_SET_IN_LABEL ? entry.Value.Label + " [" + set + "]" : entry.Value.Label; 
+			string set = key + "_entry_any";
+			string label = SHOW_SET_IN_LABEL ? vars.LevelLabels[key] + " [" + set + "]" : vars.LevelLabels[key]; 
 			settings.Add(set, vars.DefaultSettings.Contains(set), label, "level_entry_any");
+			vars.LevelSplitsDone.Add(set, false);
 		}
 
-		if(entry.Value.SettingEntry is String)
+		if(vars.LevelSettingEntry[key] is String)
 		{
-			string set = entry.Key + "_entry_item";
-			string label = SHOW_SET_IN_LABEL ? entry.Value.Label + " with " + vars.EquippableItemNames[entry.Value.SettingEntry] + " [" + set + "]" : entry.Value.Label + " with " + vars.EquippableItemNames[entry.Value.SettingEntry]; 
+			string set = key + "_entry_item";
+			string label = SHOW_SET_IN_LABEL ? vars.LevelLabels[key] + " with " + vars.EquippableItemNames[vars.LevelSettingEntry[key]] + " [" + set + "]" : vars.LevelLabels[key] + " with " + vars.EquippableItemNames[vars.LevelSettingEntry[key]]; 
 			settings.Add(set, vars.DefaultSettings.Contains(set), label, "level_entry_item");
+			vars.LevelSplitsDone.Add(set, false);
 		}
 
-		if(entry.Value.SettingExit)
+		if(vars.LevelSettingExit[key])
 		{
-			string set = entry.Key + "_exit";
-			string label = SHOW_SET_IN_LABEL ? entry.Value.Label + " [" + set + "]" : entry.Value.Label; 
+			string set = key + "_exit";
+			string label = SHOW_SET_IN_LABEL ? vars.LevelLabels[key] + " [" + set + "]" : vars.LevelLabels[key]; 
 			settings.Add(set, vars.DefaultSettings.Contains(set), label, "level_exit");
+			vars.LevelSplitsDone.Add(set, false);
 		}
 	}
 
@@ -180,6 +180,8 @@ startup
 		settings.Add(stat, false, stat, "stat");
 		vars.StatMaxes.Add(stat, 0);
 	}
+
+	vars.LoadingFrom = -1;
 }
 
 init
@@ -220,43 +222,50 @@ update
 
 	vars.Unity.Update();
     
-    current.activeScene = vars.Unity.Scenes.Active.Index;
+    current.activeSceneIndex = vars.Unity.Scenes.Active.Index;
 	current.loadingScenes = vars.Unity.Scenes.Loading;
-	
-	current.loadingScene = vars.Unity.Scenes.Loading.Count == 0 ? -1 : vars.Unity.Scenes.Loading[0].Index;
-	
-	if(old.loadingScenes.Count != current.loadingScenes.Count || 
-		(current.loadingScene != -1 && old.loadingScene != current.loadingScene))
-	{
-		vars.Log("New loading scenes [" + current.loadingScenes.Count + "]");
-		foreach(var scene in current.loadingScenes)
-		{
-			vars.Log(scene.Index + ": " + scene.Name);
-		}
-	}
-	
+	current.loadingSceneIndex = current.loadingScenes.Count == 0 || current.loadingScenes[0].Index > 200 ? -1 : current.loadingScenes[0].Index;
 
 	// Testing
 	vars.Watch("Location");
-	vars.Watch("Speed");
-	vars.Watch("Health");
-	vars.Watch("Stamina");
-	vars.Watch("Stealth");
-	vars.Watch("currentEquippedItem");
-	vars.Watch("isEquipping");
-	if(current.isLoading != old.isLoading) vars.Log("isLoading: " + old.isLoading + " -> " + current.isLoading);
-	if(current.activeScene != old.activeScene)  vars.Log("activeScene: " + old.activeScene + " -> " + current.activeScene);
-
-	if(current.loadingScene > 0 && current.loadingScene < current.loadingScenes.Count
-		&& current.loadingScene != old.loadingScene)
+	// vars.Watch("Speed");
+	// vars.Watch("Health");
+	// vars.Watch("Stamina");
+	// vars.Watch("Stealth");
+	// vars.Watch("currentEquippedItem");
+	// vars.Watch("isEquipping");
+	// if(current.isLoading != old.isLoading) vars.Log("isLoading: " + old.isLoading + " -> " + current.isLoading);
+	
+	// Watch scene variables
+	if(old.loadingScenes.Count != current.loadingScenes.Count ||  
+		(current.loadingSceneIndex != -1 && old.loadingSceneIndex != current.loadingSceneIndex)
+	)
 	{
-		vars.Log("loadingScene: " + old.loadingScene + " -> " + current.loadingScene);
-		vars.Log("New loading scenes [" + current.loadingScenes.Count + "]");
+		vars.Log("\nNew loading scenes [" + current.loadingScenes.Count + "]");
 		foreach(var scene in current.loadingScenes)
 		{
 			vars.Log(scene.Index + ": " + scene.Name);
 		}
 	}
+	
+	if(old.activeSceneIndex != current.activeSceneIndex)
+	{
+		vars.Log("Active: " + current.activeSceneIndex);
+		if(current.activeSceneIndex == 7) vars.LoadingFrom = old.activeSceneIndex;
+	}
+
+	// if(current.activeScene != old.activeScene)  vars.Log("activeScene: " + old.activeScene + " -> " + current.activeScene);
+
+	// if(current.loadingScene > 0 && current.loadingScene < current.loadingScenes.Count
+	// 	&& current.loadingScene != old.loadingScene)
+	// {
+	// 	vars.Log("loadingScene: " + old.loadingScene + " -> " + current.loadingScene);
+	// 	vars.Log("New loading scenes [" + current.loadingScenes.Count + "]");
+	// 	foreach(var scene in current.loadingScenes)
+	// 	{
+	// 		vars.Log(scene.Index + ": " + scene.Name);
+	// 	}
+	// }
 
 }
 
@@ -269,23 +278,51 @@ split
 {
 	
 	// levels
-	if(old.loadingScene != current.loadingScene
-	&& current.loadingScene != 2 && current.loadingScene != 3) // Loading / GameManagers
+	if(current.loadingSceneIndex != -1 // no loading scenes
+		&& old.loadingSceneIndex != current.loadingSceneIndex
+		&& current.loadingSceneIndex != 2 && current.loadingSceneIndex != 3) // Loading / GameManagers
 	{
-		vars.Log("Loading something...");
-		foreach(KeyValuePair<string, dynamic> entry in vars.Levels)
+		string loadingLevel = vars.GetLevelFromScene(current.loadingSceneIndex);
+		string activeLevel = vars.GetLevelFromScene(vars.LoadingFrom);
+
+		if(loadingLevel == "" || activeLevel == "") 
 		{
-			if(vars.LevelLoading(entry.Key, current.loadingScene))
+			vars.Log("Invalid loadingLevel or activeLevel: " + current.loadingSceneIndex + ", " + vars.LoadingFrom);
+		}
+		else
+		{
+			vars.Log("We are loading " + loadingLevel + " from " + activeLevel);
+
+			string entry_any = loadingLevel + "_entry_any";
+			string entry_item = loadingLevel + "_entry_item";
+			string exit = activeLevel + "_exit";
+
+			// (All for the first time)
+			// Split when we are entering a specific level
+			if(settings.ContainsKey(entry_any) && !vars.LevelSplitsDone[entry_any] && settings[entry_any]) 
 			{
-				vars.Log("We are loading " + entry.Value.Label + "! " + current.loadingScene + ", " + current.activeScene);
-
-				// (All for the first time)
-				// Split when we are entering a specific level
-				// Split when we are entering a specific level with a specific equippable
-				// Split when we are exiting a specific level
-
-				break;
+				vars.LevelSplitsDone[entry_any] = true;
+				return true;
 			}
+
+			// Split when we are entering a specific level with a specific equippable
+			if(settings.ContainsKey(entry_item) && !vars.LevelSplitsDone[entry_item] && settings[entry_item]
+				&& vars.LevelSettingEntry[loadingLevel] is string
+				&& vars.EquippableItemGot.ContainsKey(vars.LevelSettingEntry[loadingLevel])
+				&& vars.EquippableItemGot[vars.LevelSettingEntry[loadingLevel]]
+			)
+			{
+				vars.LevelSplitsDone[entry_item] = true;
+				return true;
+			}
+			
+			// Split when we are exiting a specific level
+			if(settings.ContainsKey(exit) && !vars.LevelSplitsDone[exit] && settings[exit]) 
+			{
+				vars.LevelSplitsDone[exit] = true;
+				return true;
+			}
+				
 		}
 	}
 
@@ -326,8 +363,10 @@ onStart
 onReset
 {
 	// reset trackers
+	foreach (string key in new List<string>(vars.LevelSplitsDone.Keys)) vars.LevelSplitsDone[key] = false;
 	foreach (string key in vars.EquippableItemNames.Keys) vars.EquippableItemGot[key] = false;
 	foreach (string key in vars.Stats) vars.StatMaxes[key] = 0;
+	
 }
 
 exit
