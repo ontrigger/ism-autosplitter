@@ -36,13 +36,13 @@ startup
 		{ "vtape", new {
 			Label = "Virginia's Tape",
 			Scenes = new List<int> { 29 },
-			SettingEntry = "mirror-name",
+			SettingEntry = true,
 			SettingExit = true
 		}},
 		{ "hm", new {
 			Label = "Homa-Mart",
 			Scenes = new List<int> { 10, 11, 12 },
-			SettingEntry = "mirror-name",
+			SettingEntry = true,
 			SettingExit = true
 		}},
 		{ "atape", new {
@@ -102,17 +102,17 @@ startup
 	};
 
 	vars.DefaultSettings = new List<string>() {
-		"dtape_entry_any",
-		"vtape_entry_any",
-		"hm_exit",
-		"atape_entry_item",
-		"pi_exit",
-		"mtape_entry_item",
-		"of_exit",
-		"ltape_entry_item",
-		"ep_exit",
-		"rtape_entry_any",
-		"rtape_exit"
+		"dtape_entry_any",		// Building 1/Desmonds Tape
+		"vtape_entry_any",		// Building 2
+		"hm_exit",				// Homa-Mart
+		"atape_entry_item",		// Building 3
+		"pi_exit",				// Point Icarus
+		"mtape_entry_item",		// Building 4
+		"of_exit",				// Old Factory
+		"ltape_entry_item",		// Building 5
+		"ep_exit",				// Elysium Park
+		"rtape_entry_any",		// Building 6
+		"rtape_exit"			// Agent Rainbow
 	};
 
 	// If we are loading a specific level (associated with multiple scenes - if any of the scenes are loading, then we are loading the level)
@@ -122,6 +122,7 @@ startup
 	settings.Add("level_entry_item", true, "Enter Level With Item (First time)");
 	settings.Add("level_exit", true, "Exit Level (First time)");
 
+	var SHOW_SET_IN_LABEL = false;
 	foreach(KeyValuePair<string, dynamic> entry in vars.Levels)
 	{
 		// split for entering the level with any item for the first time
@@ -129,19 +130,22 @@ startup
 			|| entry.Value.SettingEntry is String)
 		{
 			string set = entry.Key + "_entry_any";
-			settings.Add(set, vars.DefaultSettings.Contains(set), entry.Value.Label + " [" + set + "]", "level_entry_any");
+			string label = SHOW_SET_IN_LABEL ? entry.Value.Label + " [" + set + "]" : entry.Value.Label; 
+			settings.Add(set, vars.DefaultSettings.Contains(set), label, "level_entry_any");
 		}
 
 		if(entry.Value.SettingEntry is String)
 		{
 			string set = entry.Key + "_entry_item";
-			settings.Add(set, vars.DefaultSettings.Contains(set), entry.Value.Label + " with " + vars.EquippableItemNames[entry.Value.SettingEntry] + " [" + set + "]", "level_entry_item");
+			string label = SHOW_SET_IN_LABEL ? entry.Value.Label + " with " + vars.EquippableItemNames[entry.Value.SettingEntry] + " [" + set + "]" : entry.Value.Label + " with " + vars.EquippableItemNames[entry.Value.SettingEntry]; 
+			settings.Add(set, vars.DefaultSettings.Contains(set), label, "level_entry_item");
 		}
 
 		if(entry.Value.SettingExit)
 		{
 			string set = entry.Key + "_exit";
-			settings.Add(set, vars.DefaultSettings.Contains(set), entry.Value.Label + " [" + set + "]", "level_exit");
+			string label = SHOW_SET_IN_LABEL ? entry.Value.Label + " [" + set + "]" : entry.Value.Label; 
+			settings.Add(set, vars.DefaultSettings.Contains(set), label, "level_exit");
 		}
 	}
 
