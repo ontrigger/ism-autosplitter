@@ -228,13 +228,13 @@ update
 
 	// Testing
 	vars.Watch("Location");
-	// vars.Watch("Speed");
-	// vars.Watch("Health");
-	// vars.Watch("Stamina");
-	// vars.Watch("Stealth");
-	// vars.Watch("currentEquippedItem");
-	// vars.Watch("isEquipping");
-	// if(current.isLoading != old.isLoading) vars.Log("isLoading: " + old.isLoading + " -> " + current.isLoading);
+	vars.Watch("Speed");
+	vars.Watch("Health");
+	vars.Watch("Stamina");
+	vars.Watch("Stealth");
+	vars.Watch("currentEquippedItem");
+	vars.Watch("isEquipping");
+	if(current.isLoading != old.isLoading) vars.Log("isLoading: " + old.isLoading + " -> " + current.isLoading);
 	
 	// Watch scene variables
 	if(old.loadingScenes.Count != current.loadingScenes.Count ||  
@@ -254,19 +254,6 @@ update
 		if(current.activeSceneIndex == 7) vars.LoadingFrom = old.activeSceneIndex;
 	}
 
-	// if(current.activeScene != old.activeScene)  vars.Log("activeScene: " + old.activeScene + " -> " + current.activeScene);
-
-	// if(current.loadingScene > 0 && current.loadingScene < current.loadingScenes.Count
-	// 	&& current.loadingScene != old.loadingScene)
-	// {
-	// 	vars.Log("loadingScene: " + old.loadingScene + " -> " + current.loadingScene);
-	// 	vars.Log("New loading scenes [" + current.loadingScenes.Count + "]");
-	// 	foreach(var scene in current.loadingScenes)
-	// 	{
-	// 		vars.Log(scene.Index + ": " + scene.Name);
-	// 	}
-	// }
-
 }
 
 start
@@ -278,7 +265,7 @@ split
 {
 	
 	// levels
-	if(current.loadingSceneIndex != -1 // no loading scenes
+	if(current.loadingSceneIndex != -1 // no loading scenes (happens during BTO sequences, we dont need to split during these though)
 		&& old.loadingSceneIndex != current.loadingSceneIndex
 		&& current.loadingSceneIndex != 2 && current.loadingSceneIndex != 3) // Loading / GameManagers
 	{
@@ -289,9 +276,13 @@ split
 		{
 			vars.Log("Invalid loadingLevel or activeLevel: " + current.loadingSceneIndex + ", " + vars.LoadingFrom);
 		}
+		else if(loadingLevel == activeLevel)
+		{
+			vars.Log("Loading " + vars.LevelLabels[loadingLevel] + " from itself!");
+		}
 		else
 		{
-			vars.Log("We are loading " + loadingLevel + " from " + activeLevel);
+			vars.Log("We are loading " + vars.LevelLabels[loadingLevel] + " from " + vars.LevelLabels[activeLevel]);
 
 			string entry_any = loadingLevel + "_entry_any";
 			string entry_item = loadingLevel + "_entry_item";
@@ -344,6 +335,12 @@ split
 			vars.StatMaxes[stat] = vars.Unity[stat].Current;
 			return true;
 		}
+	}
+
+	// end split
+	if(vars.Unity["Location"] == 179) // roof
+	{
+		// placeholder
 	}
 
 	return false;
