@@ -11,7 +11,12 @@ startup
 	vars.Unity.LoadSceneManager = true;
 
 	/*
-	Building -> Desmond's Tape ---split---> Building ---split---> Virginia's Tape -> Homa-Mart ---split---> Building
+	Building -> Desmond's Tape -> Building 
+		-> Virginia's Tape -> Homa-Mart -> Building
+		-> Allen's Tape    -> Point Icarus -> Building
+		-> Max's Tape 	   -> Old Factory  -> Building
+		-> Lucas' Tape     -> Elysium Park -> Building
+		-> Rainbow Tape    -> Building
 	4, 5, 6: Hub_1, Hub_Env_1, Hub_Outside_1
 	28, 29, 30, 31, 32, 33: Tape_Desmond_1, Tape_Watcher_1, Tape_Shade_1, Tape_Bull_1, Tape_Flash_1, Tape_Rainbow_1
 	10, 11, 12: C_Supermarket, C_Supermarket_env_1, C_Supermarket_env_2
@@ -21,6 +26,12 @@ startup
 	*/
 	vars.Levels = new Dictionary<string, dynamic>()
 	{
+		{ "mainmenu", new {
+			Label = "Main Menu",
+			Scenes = new List<int> { 1, 9 },
+			SettingEntry = false,
+			SettingExit = false,
+		}},
 		{ "building", new {
 			Label = "Building",
 			Scenes = new List<int> { 4, 5, 6 },
@@ -116,7 +127,7 @@ startup
 	};
 
 	// If we are loading a specific level (associated with multiple scenes - if any of the scenes are loading, then we are loading the level)
-	vars.LevelLoading =  (Func<string, int, bool>)((level, loadingScene) => vars.Levels[level].Scenes.Contains(loadingScene));
+	vars.LevelLoading = (Func<string, int, bool>)((level, loadingScene) => vars.Levels[level].Scenes.Contains(loadingScene));
 
 	settings.Add("level_entry_any", true, "Enter Level (First time, any item)");
 	settings.Add("level_entry_item", true, "Enter Level With Item (First time)");
