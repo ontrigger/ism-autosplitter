@@ -70,17 +70,17 @@ startup
 		{"rtape", true},
 	};
 
-	vars.LevelSettingExit = new Dictionary<string, bool>() {
+	vars.LevelSettingExit = new Dictionary<string, dynamic>() {
 		{"mainmenu", false}, 
 		{"building", false}, 
 		{"dtape", true},
-		{"vtape", true},
+		{"vtape", "hm"},
 		{"hm", true},
-		{"atape", true},
+		{"atape", "pi"},
 		{"pi", true},
-		{"mtape", true},
+		{"mtape", "of"},
 		{"of", true},
-		{"ltape", true},
+		{"ltape", "ep"},
 		{"ep", true},
 		{"rtape", true},
 	};
@@ -151,10 +151,14 @@ startup
 			vars.LevelSplitsDone.Add(set, false);
 		}
 
-		if(vars.LevelSettingExit[key])
+		if((vars.LevelSettingExit[key] is bool && vars.LevelSettingExit[key])
+			|| (vars.LevelSettingExit[key] is string))
 		{
 			string set = key + "_exit";
-			string label = SHOW_SET_IN_LABEL ? vars.LevelLabels[key] + " [" + set + "]" : vars.LevelLabels[key]; 
+			string label = vars.LevelLabels[key];
+			if(vars.LevelSettingExit[key] is string) label += " exit to " + vars.LevelLabels[vars.LevelSettingExit[key]];
+			label = SHOW_SET_IN_LABEL ? label + " [" + set + "]" : label; 
+
 			settings.Add(set, vars.DefaultSettings.Contains(set), label, "level_exit");
 			vars.LevelSplitsDone.Add(set, false);
 		}
@@ -309,7 +313,9 @@ split
 			
 			// Split when we are exiting a specific level
 			if(settings.ContainsKey(exit) && !vars.LevelSplitsDone[exit] && settings[exit]) 
-			{
+			{	
+				if(vars.LevelSettingExit[activeLevel] is string && vars.LevelSettingExit[activeLevel] != loadingLevel) return false;
+
 				vars.LevelSplitsDone[exit] = true;
 				return true;
 			}
@@ -338,7 +344,7 @@ split
 	}
 
 	// end split
-	if(vars.Unity["Location"] == 179) // roof
+	if(vars.Unity["Location"].Current == 179) // roof
 	{
 		// placeholder
 	}
