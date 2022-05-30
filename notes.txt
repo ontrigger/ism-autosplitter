@@ -1,0 +1,356 @@
+/* various notes and things from an old bad version of the splitter, for future keepsake's */
+
+state("In Sound Mind")
+{
+	bool isLoading : "unityplayer.dll", 0x19fb7c8, 0x78;
+	
+	// GameConfig
+	string128 language: "GameAssembly.dll", 0x298F988, 0xB8, 0x0, 0x18, 0x14; // unicode
+	int difficulty: "GameAssembly.dll", 0x298F988, 0xB8, 0x0, 0x20; // 0 = easy, 1 = normal, 2 = hard
+
+	// GameObjectives
+
+	// 0x48: _objectiveBars (type: List<ObjectiveBar>)
+	// 0x18: _size
+	int objectiveCount: "GameAssembly.dll", 0x298FCE8, 0xB8, 0x0, 0x48, 0x18;
+	// 0x10: items
+	// 0x20 + j*0x8: jth item
+	// 0x18 - _text (type: TMPro.TextMeshProUGUI)
+	// 0xd8 - m_text
+	// 0x14 - actual string
+	// string128 objective0: "GameAssembly.dll", 0x298FCE8, 0xB8, 0x0, 0x48, 0x10, 0x20, 0x18, 0xd8, 0x14;
+	// string128 objective1: "GameAssembly.dll", 0x298FCE8, 0xB8, 0x0, 0x48, 0x10, 0x28, 0x18, 0xd8, 0x14;
+	// string128 objective2: "GameAssembly.dll", 0x298FCE8, 0xB8, 0x0, 0x48, 0x10, 0x30, 0x18, 0xd8, 0x14;
+	// bool objective0IsMain: "GameAssembly.dll", 0x298FCE8, 0xB8, 0x0, 0x48, 0x10, 0x20, 0x38;
+
+	// the most recent objective to appear
+	string128 _onScreenObjectiveText: "GameAssembly.dll", 0x298FCE8, 0xB8, 0x0, 0x40, 0x18, 0xD8, 0x14; 
+	bool isInventoryOpen: "GameAssembly.dll", 0x298FCE8, 0xB8, 0x0, 0x54;
+
+	// GameParams
+	bool isQuittingGame: "GameAssembly.dll", 0x298FE08, 0xB8, 0x0, 0x18;
+	int location: "GameAssembly.dll", 0x298FE08, 0xB8, 0x0, 0x28;
+
+	// PlayerMovementController - "UnityPlayer.dll", 0x019BD2B0, 0x8, 0x8, 0x90, 0xD8, 0x28
+	bool isFrozen: "UnityPlayer.dll", 0x019BD2B0, 0x8, 0x8, 0x90, 0xD8, 0x28, 0x2C;
+	bool isInit: "UnityPlayer.dll", 0x019BD2B0, 0x8, 0x8, 0x90, 0xD8, 0x28, 0x2D;
+	// PMC, _physics, _isMoving
+	bool isMoving: "UnityPlayer.dll", 0x019BD2B0, 0x8, 0x8, 0x90, 0xD8, 0x28, 0x20, 0xFC;
+
+	float lastX: "UnityPlayer.dll", 0x019BD2B0, 0x8, 0x8, 0x90, 0xD8, 0x28, 0x20, 0x88, 0x50;
+	float lastY: "UnityPlayer.dll", 0x019BD2B0, 0x8, 0x8, 0x90, 0xD8, 0x28, 0x20, 0x88, 0x54;
+	float lastZ: "UnityPlayer.dll", 0x019BD2B0, 0x8, 0x8, 0x90, 0xD8, 0x28, 0x20, 0x88, 0x58;
+}
+
+startup
+{
+	print("Startup.");
+    vars.Log = (Action<object>)(output => print("[ISM] " + output));
+	Func<List<Tuple<string, string, bool, string>>, string, bool> hasObjective = (objectives, id) => {
+		
+		for(int i = 0; i < objectives.Count; i++)
+		{
+			return objectives[i].Item1 == id;
+		}
+
+		return false;
+	};
+
+	vars.HasObjective = hasObjective;
+
+	Func<float, float, bool> isClose = ((x1, x2) => ((x1 - x2) * (x1 > x2 ? 1 : -1)) < 0.01);
+	vars.IsClose = isClose;
+	// vars.Unity = Activator.CreateInstance(Assembly.LoadFrom(@"Components\UnityASL.bin").GetType("UnityASL.Unity"));
+
+	vars.Locations = new string[] {
+		"Beach",
+		"Office",
+		"GasStation",
+		"Town",
+		"supermarket",
+		"supermarket_entrance",
+		"supermarket_main1",
+		"supermarket_main2",
+		"supermarket_main3",
+		"supermarket_main4",
+		"supermarket_electronic",
+		"supermarket_toys",
+		"supermarket_toilets",
+		"supermarket_maintenance1",
+		"supermarket_maintenance2",
+		"supermarket_maintenance3",
+		"supermarket_managerroom",
+		"supermarket_cctv",
+		"supermarket_offices",
+		"supermarket_staff",
+		"supermarket_lockerroom",
+		"supermarket_powerroom",
+		"supermarket_compressorroom",
+		"supermarket_loadingbay",
+		"supermarket_controlcabin",
+		"supermarket_warehouse",
+		"supermarket_trashroom",
+		"supermarket_freezerroom",
+		"supermarket_storage1",
+		"supermarket_storage2",
+		"supermarket_registers",
+		"supermarket_exhibit",
+		"supermarket_vents",
+		"hub_building",
+		"hub_basement",
+		"hub_basement_trash",
+		"hub_basement_storage",
+		"hub_basement_workroom",
+		"hub_basement_elevatorhallway",
+		"hub_basement_boiler",
+		"hub_basement_laundry",
+		"hub_basement_service",
+		"hub_basement_shaft",
+		"hub_office_floor",
+		"hub_office_desmondoffice",
+		"hub_office_hall",
+		"hub_floor_1",
+		"hub_floor_1_centralhallway",
+		"hub_floor_1_easthallway",
+		"hub_floor_1_westhallway",
+		"hub_floor_1_toilets",
+		"hub_floor_1_maintenanceroom",
+		"hub_floor_1_janitorcloset",
+		"hub_floor_1_backroom",
+		"hub_floor_1_gasroom",
+		"hub_floor_1_storage",
+		"hub_floor_1_lobby",
+		"hub_floor_1_resepctionroom",
+		"hub_floor_1_mailroom",
+		"hub_tape_0",
+		"lighthouse",
+		"lighthouse_beach",
+		"lighthouse_cove",
+		"lighthouse_fishingcabin",
+		"lighthouse_forest",
+		"lighthouse_lookout",
+		"lighthouse_blockedcave",
+		"lighthouse_sunkencars",
+		"lighthouse_checkpoint1",
+		"lighthouse_checkpoint2",
+		"lighthouse_smallhouse1",
+		"lighthouse_lane",
+		"lighthouse_lighthouse",
+		"lighthouse_burnthouse",
+		"lighthouse_courtyard",
+		"lighthouse_cliffs",
+		"lighthouse_bay",
+		"lighthouse_ship",
+		"lighthouse_shipinside",
+		"lighthouse_shipbridge",
+		"lighthouse_wharf",
+		"lighthouse_warehouse",
+		"lighthouse_lighthouseinside",
+		"lighthouse_lighthousebasemen",
+		"lighthouse_lighthousetop",
+		"lighthouse_lighthouseshed",
+		"lighthouse_shipdeck",
+		"lighthouse_boathouse",
+		"lighthouse_trip",
+		"hub_tape_1",
+		"hub_apt_desmond",
+		"hub_apt_virginia",
+		"hub_tape_2",
+		"hub_apt_allen",
+		"factory_railroadsouth",
+		"factory_entrance",
+		"factory_loadzone",
+		"factory_trainyard",
+		"factory_trainyardeast",
+		"factory_tunnel",
+		"factory_hangar",
+		"factory_powerstation",
+		"factory_floor1",
+		"factory_floor2",
+		"factory_floor3",
+		"factory_packaging",
+		"factory_storage1",
+		"factory_storage2",
+		"factory_frozenroom",
+		"factory_assembly1",
+		"factory_assembly2",
+		"factory_assembly3",
+		"factory_incinerator",
+		"factory_scary",
+		"factory_centrifuge",
+		"factory_processingwing1",
+		"factory_processingwing2",
+		"factory_blastroom",
+		"factory_officecabin",
+		"factory_watingarea",
+		"factory_office1",
+		"factory_office2",
+		"factory_bossroom",
+		"factory_secretaryroom",
+		"factory_lab",
+		"factory_toxicdump",
+		"factory_quarry",
+		"factory_trainhouse",
+		"forest",
+		"forest_normal",
+		"forest_deep",
+		"forest_flashcabin",
+		"forest_bunkerdoor",
+		"forest_watertower",
+		"forest_watchtower",
+		"forest_rangerstation",
+		"forest_church",
+		"forest_graveyard",
+		"forest_crypt",
+		"forest_radiotower",
+		"forest_radiostation",
+		"forest_bunker",
+		"forest_radarout",
+		"forest_radartop",
+		"forest_cablestation",
+		"forest_poi_1",
+		"forest_poi_2",
+		"forest_poi_3",
+		"forest_poi_4",
+		"forest_poi_5",
+		"forest_poi_6",
+		"forest_poi_7",
+		"forest_poi_8",
+		"forest_poi_9",
+		"forest_poi_10",
+		"forest_anchortower",
+		"forest_watercenter",
+		"forest_bridge_l",
+		"forest_bridge_c",
+		"forest_bridge_r",
+		"forest_bridge_small",
+		"forest_bridge_big",
+		"forest_forest_center",
+		"forest_forest_west",
+		"forest_forest_east",
+		"forest_jammer_tower",
+		"forest_water_center_inside",
+		"forest_water_center_sewer",
+		"forest_lookout",
+		"forest_visitorcenterinside",
+		"supermarket_meat",
+		"supermarket_dairy",
+		"hub_tape_3",
+		"hub_tape_4",
+		"hub_apt_max",
+		"hub_apt_lucas",
+		"hub_floor_1_ventilation",
+		"tape_rainbow_piano_room",
+		"tape_rainbow",
+		"hub_roof",
+		"hub_roof_stair"
+	};
+
+	vars.hub_basement = 34;
+	vars.hub_basement_trash = 35;
+	
+	vars.StartX = 21.75f;
+	vars.StartY = -0.95;
+	vars.StartZ = -80.25f;
+
+	// split info
+	vars.ObjListenToDesmondsTape = "obj-top-floor-desmond-tape-1";
+	vars.ObjSeenDesTape = false;
+}
+
+init 
+{
+	// id, text, isMain, Chapter.SceneName
+	current.Objectives = new List<Tuple<string, string, bool, string>>();
+}
+
+update
+{
+	// get list of objectives
+	current.Objectives.Clear();
+	current.hasDesTapeObj = false;
+
+	for(int i = 0; i < current.objectiveCount; i++) {
+		var ObjectiveIdPointer = new DeepPointer("GameAssembly.dll", 0x298FCE8, 0xB8, 0x0, 0x48, 0x10, 0x20 + 0x8*i, 0x30, 0x14);
+		var id = ObjectiveIdPointer.DerefString(game, 128);
+
+		var ObjectiveTextPointer = new DeepPointer("GameAssembly.dll", 0x298FCE8, 0xB8, 0x0, 0x48, 0x10, 0x20 + 0x8*i, 0x18, 0xd8, 0x14);
+		string text = ObjectiveTextPointer.DerefString(game, 128);
+
+		var ObjectiveIsMainPointer = new DeepPointer("GameAssembly.dll", 0x298FCE8, 0xB8, 0x0, 0x48, 0x10, 0x20 + 0x8*i, 0x38);
+		bool isMain = ObjectiveTextPointer.Deref<bool>(game);
+
+		var ObjChapterSceneName = new DeepPointer("GameAssembly.dll", 0x298FCE8, 0xB8, 0x0, 0x48, 0x10, 0x20 + 0x8*i, 0x40, 0x58, 0x14);
+		var chapter = ObjChapterSceneName.DerefString(game, 128);
+
+
+		current.Objectives.Add(Tuple.Create(id, text, isMain, chapter));
+
+		if(id == vars.ObjListenToDesmondsTape) current.hasDesTapeObj = true;
+
+		if(current.objectiveCount != old.objectiveCount)
+		{
+			vars.Log(i.ToString() + ": " + id + ", " + text + ", " + isMain.ToString() + ", " + chapter);
+		}
+	}
+
+	if(current.location != old.location) 
+	{
+		vars.Log("Old Location: " + vars.Locations[old.location] + "\nCurrent Location " + current.location.ToString() + ": " + vars.Locations[current.location] + "\n");
+	}
+
+	// if(vars.IsClose((float) vars.StartX, old.lastX)
+	// && vars.IsClose((float) vars.StartY, old.lastY)
+	// && vars.IsClose((float) vars.StartZ, old.lastZ))
+	// {
+	// 	vars.Log("In start pos, " + current.location.ToString());
+	// }
+	// else
+	// {
+	// 	vars.Log("X: " + old.lastX + "\nY: " + old.lastY + "\nZ: " + old.lastZ);
+	// }
+
+	// print(vars.IsClose(old.lastX, vars.StartX)
+	// 	&& old.lastY == vars.StartY
+	// 	&& old.lastZ == vars.StartZ).ToString());
+}
+
+start
+{
+	if((current.location == vars.hub_basement || current.location == vars.hub_basement_trash)
+		&& vars.IsClose((float) vars.StartX, old.lastX)
+		&& vars.IsClose((float) vars.StartY, old.lastY)
+		&& vars.IsClose((float) vars.StartZ, old.lastZ)
+		&& (current.lastX != old.lastX
+		 || current.lastY != old.lastY
+		 || current.lastZ != old.lastZ)
+	) {
+
+		return true;
+	}
+
+	return false;
+}
+
+split
+{
+	// vars.Log(vars.HasObjective(old.Objectives, vars.ObjListenToDesmondsTape).ToString());
+	// vars.Log(vars.ObjSeenDesTape.ToString());
+	// on completing desmond's tape
+	if(old.hasDesTapeObj && !current.hasDesTapeObj)
+	{
+		return true;
+	}
+}
+
+isLoading
+{
+	return !current.isLoading;
+}
+
+/*
+	SceneLoader#isLoading - GameAssembly.dll, 0x29913D8 (MonoSingleton<SceneLoader>), 0xB8 (static fields), 0x0 (instance), 0x20 (isLoading)
+	SceneLoader#_sceneQueue - GameAssembly.dll, 0x29913D8, 0xB8, 0x0, 0x18 (_sceneQueue), 0x0 (array), 0x0 (first item), 0x10 (SceneName)
+	objective - GameAssembly.dll, 0x298FCE8, 0xB8, 0x0, 0x40 (_onScreenObjective), 0x18 (_text_)
+	
+*/
