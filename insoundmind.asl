@@ -7,7 +7,9 @@ startup
 {
 	vars.Log = (Action<object>)(output => print("[ISM-ASL] " + output));
 	vars.Watch = (Action<string>)(key => { if(vars.Unity[key].Changed) vars.Log(key + ": " + vars.Unity[key].Old + " -> " + vars.Unity[key].Current); });
-	vars.Unity = Assembly.Load(File.ReadAllBytes(@"Components\UnityASL.bin")).CreateInstance("UnityASL.Unity");
+	var bytes = File.ReadAllBytes(@"Components\LiveSplit.ASLHelper.bin");
+	var type = Assembly.Load(bytes).GetType("ASLHelper.Unity");
+	vars.Unity = Activator.CreateInstance(type, timer, this);
 	vars.Unity.LoadSceneManager = true;
 
 	/*
@@ -190,41 +192,33 @@ startup
 
 init
 {
-	vars.Unity.TryOnLoad = (Func<dynamic, bool>)(helper =>
+	vars.Unity.TryOnLoad = (Func<dynamic, bool>)(mono =>
 	{
-		// GameParams
-		var GameParamsClass = helper.GetClass("Assembly-CSharp", "GameParams");
-		var GameParamsBase = helper.GetParent(GameParamsClass);
-		vars.Unity.Make<int>(GameParamsBase.Static, GameParamsBase["Instance"], GameParamsClass["CurrentLocation"]).Name = "Location";
-		
-		// EquippableController
-		var EquippableControllerClass = helper.GetClass("Assembly-CSharp", "EquippableController", 1);
-		var EquippableControllerBase = helper.GetParent(EquippableControllerClass);
-		var EquippableItemClass = helper.GetClass("Assembly-CSharp", "EquippableItem");
-		var InventoryItemClass = helper.GetClass("Assembly-CSharp", "InventoryItem");
+		var gp = mono.GetClass("GameParams", 1);
+		vars.Unity["Location"] = gp.Make<int>("Instance", "CurrentLocation");
 
-		vars.Unity.Make<bool>(EquippableControllerBase.Static, EquippableControllerBase["Instance"], EquippableControllerClass["_isEquipping"]).Name = "isEquipping";
-		vars.Unity.MakeString(EquippableControllerBase.Static, EquippableControllerBase["Instance"], EquippableControllerClass["_currentEquippedItem"], InventoryItemClass["DisplayName"]).Name = "currentEquippedItem";
+		var ec = mono.GetClass("EquippableController", 1);
+		var ii = mono.GetClass("InventoryItem");
+
+		vars.Unity["isEquipping"] = ec.Make<bool>("Instance", "_isEquipping");
+		vars.Unity["currentEquippedItem"] = ec.Make<bool>("Instance", "_currentEquippedItem", ii["DisplayName"]);
+
+		var ps = mono.GetClass("PlayerStats", 1);
 		
-		// PlayerStats
-		var PlayerStatsClass = helper.GetClass("Assembly-CSharp", "PlayerStats", 1);
-		var PlayerStatsMS = helper.GetParent(PlayerStatsClass);
 		foreach(string stat in vars.Stats) 
 		{
-			vars.Unity.Make<int>(PlayerStatsClass.Static, PlayerStatsMS["Instance"], PlayerStatsClass[stat]).Name = stat;
+			vars.Unity[stat] = ps.Make<int>("Instance", ps[stat]);
 		}
 
 		return true;
 	});
 
-	vars.Unity.Load(game);
+	vars.Unity.Load();
 }
 
 update
 {
-	if (!vars.Unity.Loaded) return false;
-
-	vars.Unity.Update();
+	if (!vars.Unity.Update()) return false;
     
     current.activeSceneIndex = vars.Unity.Scenes.Active.Index;
 	current.loadingScenes = vars.Unity.Scenes.Loading;
@@ -248,6 +242,7 @@ update
 		vars.Log("\nNew loading scenes [" + current.loadingScenes.Count + "]");
 		foreach(var scene in current.loadingScenes)
 		{
+			if(scene.Index <= 0) break;
 			vars.Log(scene.Index + ": " + scene.Name);
 		}
 	}
@@ -374,11 +369,11 @@ onReset
 
 exit
 {
-	vars.Unity.Reset();
+	vars.Unity.Dispose();
 }
 
 shutdown
 {
-	vars.Unity.Reset();
+	vars.Unity.Dispose();
 }
 
