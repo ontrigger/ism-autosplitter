@@ -201,7 +201,7 @@ init
 		var ii = mono.GetClass("InventoryItem");
 
 		vars.Unity["isEquipping"] = ec.Make<bool>("Instance", "_isEquipping");
-		vars.Unity["currentEquippedItem"] = ec.Make<bool>("Instance", "_currentEquippedItem", ii["DisplayName"]);
+		vars.Unity["currentEquippedItem"] = ec.MakeString("Instance", "_currentEquippedItem", ii["DisplayName"]);
 
 		var ps = mono.GetClass("PlayerStats", 1);
 		
