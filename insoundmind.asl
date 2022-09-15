@@ -1,379 +1,350 @@
 state("In Sound Mind")
 {
-	bool isLoading : "unityplayer.dll", 0x19fb7c8, 0x78;
+	bool isNotLoading: "UnityPlayer.dll", 0x19FB7C8, 0x78;
+	// No static reference to this class I could find unfortunately
+	long inventoryUI: "UnityPlayer.dll", 0x01952CC0, 0x330, 0x48, 0x168, 0x30, 0x30, 0x18, 0x28;
 }
 
 startup
 {
 	vars.Log = (Action<object>)(output => print("[ISM-ASL] " + output));
-	vars.Watch = (Action<string>)(key => { if(vars.Unity[key].Changed) vars.Log(key + ": " + vars.Unity[key].Old + " -> " + vars.Unity[key].Current); });
+	vars.Watch = (Action<string>)(key => { if(vars.Helper[key].Changed) vars.Log(key + ": " + vars.Helper[key].Old + " -> " + vars.Helper[key].Current); });
+
 	var bytes = File.ReadAllBytes(@"Components\LiveSplit.ASLHelper.bin");
 	var type = Assembly.Load(bytes).GetType("ASLHelper.Unity");
-	vars.Unity = Activator.CreateInstance(type, timer, this);
-	vars.Unity.LoadSceneManager = true;
+	vars.Helper = Activator.CreateInstance(type, timer, this);
+	vars.Helper.LoadSceneManager = true;
 
-	/*
-	Building -> Desmond's Tape -> Building 
-		-> Virginia's Tape -> Homa-Mart -> Building
-		-> Allen's Tape    -> Point Icarus -> Building
-		-> Max's Tape 	   -> Old Factory  -> Building
-		-> Lucas' Tape     -> Elysium Park -> Building
-		-> Rainbow Tape    -> Building
-	4, 5, 6: Hub_1, Hub_Env_1, Hub_Outside_1
-	28, 29, 30, 31, 32, 33: Tape_Desmond_1, Tape_Watcher_1, Tape_Shade_1, Tape_Bull_1, Tape_Flash_1, Tape_Rainbow_1
-	10, 11, 12: C_Supermarket, C_Supermarket_env_1, C_Supermarket_env_2
-	13, 14, 15, 16, 17: C_Lighthouse, C_Lighthouse_env1, C_Lighthouse_env2, C_Lighthouse_Walls, C_Lighthouse_splines
-	18, 19, 20, 21, 22: C_Factory, C_Factory_env1, C_Factory_env2, C_Factory_Walls, C_Factory_splines
-	23, 24, 25, 26, 27: C_Forest, C_Forest_env1, C_Forest_env2, C_Forest_Splines, C_Forest_Walls
-	*/
-	// asl be like
-	vars.LevelLabels = new Dictionary<string, string>() {
-		{"mainmenu", "Main Menu"}, 
-		{"building", "Building"}, 
-		{"dtape", "Desmond's Tape"}, 
-		{"vtape", "Virginia's Tape"}, 
-		{"hm", "Homa-Mart"},
-		{"atape", "Allen's Tape"},
-		{"pi", "Point Icarus"},
-		{"mtape", "Max's Tape"},
-		{"of", "Old Factory"},
-		{"ltape", "Lucas' Tape"},
-		{"ep", "Elysium Park"},
-		{"rtape", "Rainbow Tape"},
-	};
+	vars.FoundEquippables = new Dictionary<string, bool>();
+	vars.FoundItems = new Dictionary<string, bool>();
+	vars.EquippableLabels = new Dictionary<string, string>();
+	vars.LevelEntryItems = new Dictionary<string, string>();
+	vars.LevelScenes = new Dictionary<string, List<int>>();
+	vars.CompletedSplits = new List<string>();
+	vars.Locations = new List<string>() { "Beach", "Office", "GasStation", "Town", "supermarket", "supermarket_entrance", "supermarket_main1", "supermarket_main2", "supermarket_main3", "supermarket_main4", "supermarket_electronic", "supermarket_toys", "supermarket_toilets", "supermarket_maintenance1", "supermarket_maintenance2", "supermarket_maintenance3", "supermarket_managerroom", "supermarket_cctv", "supermarket_offices", "supermarket_staff", "supermarket_lockerroom", "supermarket_powerroom", "supermarket_compressorroom", "supermarket_loadingbay", "supermarket_controlcabin", "supermarket_warehouse", "supermarket_trashroom", "supermarket_freezerroom", "supermarket_storage1", "supermarket_storage2", "supermarket_registers", "supermarket_exhibit", "supermarket_vents", "hub_building", "hub_basement", "hub_basement_trash", "hub_basement_storage", "hub_basement_workroom", "hub_basement_elevatorhallway", "hub_basement_boiler", "hub_basement_laundry", "hub_basement_service", "hub_basement_shaft", "hub_office_floor", "hub_office_desmondoffice", "hub_office_hall", "hub_floor_1", "hub_floor_1_centralhallway", "hub_floor_1_easthallway", "hub_floor_1_westhallway", "hub_floor_1_toilets", "hub_floor_1_maintenanceroom", "hub_floor_1_janitorcloset", "hub_floor_1_backroom", "hub_floor_1_gasroom", "hub_floor_1_storage", "hub_floor_1_lobby", "hub_floor_1_resepctionroom", "hub_floor_1_mailroom", "hub_tape_0", "lighthouse", "lighthouse_beach", "lighthouse_cove", "lighthouse_fishingcabin", "lighthouse_forest", "lighthouse_lookout", "lighthouse_blockedcave", "lighthouse_sunkencars", "lighthouse_checkpoint1", "lighthouse_checkpoint2", "lighthouse_smallhouse1", "lighthouse_lane", "lighthouse_lighthouse", "lighthouse_burnthouse", "lighthouse_courtyard", "lighthouse_cliffs", "lighthouse_bay", "lighthouse_ship", "lighthouse_shipinside", "lighthouse_shipbridge", "lighthouse_wharf", "lighthouse_warehouse", "lighthouse_lighthouseinside", "lighthouse_lighthousebasement", "lighthouse_lighthousetop", "lighthouse_lighthouseshed", "lighthouse_shipdeck", "lighthouse_boathouse", "lighthouse_trip", "hub_tape_1", "hub_apt_desmond", "hub_apt_virginia", "hub_tape_2", "hub_apt_allen", "factory_railroadsouth", "factory_entrance", "factory_loadzone", "factory_trainyard", "factory_trainyardeast", "factory_tunnel", "factory_hangar", "factory_powerstation", "factory_floor1", "factory_floor2", "factory_floor3", "factory_packaging", "factory_storage1", "factory_storage2", "factory_frozenroom", "factory_assembly1", "factory_assembly2", "factory_assembly3", "factory_incinerator", "factory_scary", "factory_centrifuge", "factory_processingwing1", "factory_processingwing2", "factory_blastroom", "factory_officecabin", "factory_watingarea", "factory_office1", "factory_office2", "factory_bossroom", "factory_secretaryroom", "factory_lab", "factory_toxicdump", "factory_quarry", "factory_trainhouse", "forest", "forest_normal", "forest_deep", "forest_flashcabin", "forest_bunkerdoor", "forest_watertower", "forest_watchtower", "forest_rangerstation", "forest_church", "forest_graveyard", "forest_crypt", "forest_radiotower", "forest_radiostation", "forest_bunker", "forest_radarout", "forest_radartop", "forest_cablestation", "forest_poi_1", "forest_poi_2", "forest_poi_3", "forest_poi_4", "forest_poi_5", "forest_poi_6", "forest_poi_7", "forest_poi_8", "forest_poi_9", "forest_poi_10", "forest_anchortower", "forest_watercenter", "forest_bridge_l", "forest_bridge_c", "forest_bridge_r", "forest_bridge_small", "forest_bridge_big", "forest_forest_center", "forest_forest_west", "forest_forest_east", "forest_jammer_tower", "forest_water_center_inside", "forest_water_center_sewer", "forest_lookout", "forest_visitorcenterinside", "supermarket_meat", "supermarket_dairy", "hub_tape_3", "hub_tape_4", "hub_apt_max", "hub_apt_lucas", "hub_floor_1_ventilation", "tape_rainbow_piano_room", "tape_rainbow", "hub_roof", "hub_roof_stairs" };
+	
+	#region Settings
+	var xml = System.Xml.Linq.XDocument.Load(@"Components\ISM.Items.xml").Element("Data");
 
-	vars.LevelScenes = new Dictionary<string, List<int>>() {
-		{"mainmenu", new List<int> { 1, 9 }}, 
-		{"building", new List<int> { 4, 5, 6 }},
-		{"dtape", new List<int> { 28 }},
-		{"vtape", new List<int> { 29 }},
-		{"hm", new List<int> { 10, 11, 12 }},
-		{"atape", new List<int> { 30 }},
-		{"pi", new List<int> { 13, 14, 15, 16, 17 }},
-		{"mtape", new List<int> { 31 }},
-		{"of", new List<int> { 18, 19, 20, 21, 22 }},
-		{"ltape", new List<int> { 32 }},
-		{"ep", new List<int> { 23, 24, 25, 26, 27 }},
-		{"rtape", new List<int> { 33 }},
-	};
-
-	vars.LevelSettingEntry = new Dictionary<string, dynamic>() {
-		{"mainmenu", false}, 
-		{"building", false}, 
-		{"dtape", true},
-		{"vtape", true},
-		{"hm", true},
-		{"atape", "flaregun-name"},
-		{"pi", "flaregun-name"},
-		{"mtape", "lurepill-name"},
-		{"of", "lurepill-name"},
-		{"ltape", "radio-name"},
-		{"ep", "radio-name"},
-		{"rtape", true},
-	};
-
-	vars.LevelSettingExit = new Dictionary<string, dynamic>() {
-		{"mainmenu", false}, 
-		{"building", false}, 
-		{"dtape", true},
-		{"vtape", "hm"},
-		{"hm", true},
-		{"atape", "pi"},
-		{"pi", true},
-		{"mtape", "of"},
-		{"of", true},
-		{"ltape", "ep"},
-		{"ep", true},
-		{"rtape", true},
-	};
-
-	vars.EquippableItemNames = new Dictionary<string, string>() 
-	{ 
-		{"flashlight-name", "Flashlight"}, 
-		{"mirror-name", "Mirror Shard"},
-		{"pistol-name", "Pistol"}, 
-		{"gasmask-name", "Gas Mask"}, 
-		{"flaregun-name", "Flare Gun"}, 
-		{"lurepill-name", "Lure Pill"}, 
-		{"shotgun-name", "Shotgun"}, 
-		{"radio-name", "Radio"}
-	};
-
-	vars.DefaultSettings = new List<string>() {
-		"dtape_exit",		// Building 1/Desmonds Tape
-		"vtape_entry_any",	// Building 2
-		"hm_exit",			// Homa-Mart
-		"atape_entry_item",	// Building 3
-		"pi_exit",			// Point Icarus
-		"mtape_entry_item",	// Building 4
-		"of_exit",			// Old Factory
-		"ltape_entry_item",	// Building 5
-		"ep_exit",			// Elysium Park
-		"rtape_entry_any",	// Building 6
-		"rtape_exit"		// Agent Rainbow
-	};
-
-	// If we are loading a specific level (associated with multiple scenes - if any of the scenes are loading, then we are loading the level)
-	vars.LevelHasScene = (Func<string, int, bool>)((level, sceneIndex) => vars.LevelScenes[level].Contains(sceneIndex));
-	vars.GetLevelFromScene = (Func<int, string>)((sceneIndex) => 
+	settings.Add("levels", false, "Split on level events");
+	settings.Add("equippables", false, "Split on equippable pickup");
+	
+	foreach(var equippable in xml.Element("Equippables").Elements("Equippable"))
 	{
-		foreach(string key in vars.LevelScenes.Keys) 
+		string id = equippable.Attribute("ID").Value;
+		string name = equippable.Attribute("Name").Value;
+		string desc = equippable.Attribute("Description").Value;
+
+		settings.Add(id, false, name, "equippables");
+		settings.SetToolTip(id, desc);
+
+		vars.FoundEquippables[id] = false;
+		vars.EquippableLabels[id] = name;
+	}
+	
+
+	foreach(var level in xml.Element("Levels").Elements("Level"))
+	{
+		string levelId = level.Attribute("ID").Value;
+		string levelName = level.Attribute("Name").Value;
+
+		#region LevelScenes
+		vars.LevelScenes[levelId] = new List<int>();
+		foreach(var scene in level.Element("Scenes").Elements("Scene"))
 		{
-			if(vars.LevelHasScene(key, sceneIndex))
+			vars.LevelScenes[levelId].Add(Int32.Parse(scene.Attribute("Index").Value));
+		}
+		#endregion
+
+		#region LevelSplit
+		var entryItem = level.Attribute("EntryItem") != null ? level.Attribute("EntryItem").Value : "None";
+		var exitLevel = level.Attribute("ExitLevel") != null ? level.Attribute("ExitLevel").Value : "None";
+
+		// enter / exit
+		if(entryItem != "None" || exitLevel != "None")
+		{
+			// settings.Add(levelId, false, levelName, "levels");
+
+			if(entryItem != "None")
 			{
-				return key;
-			}	
+				settings.Add(levelId + "_enter", false, "Enter " + levelName, "levels");
+				
+				if(entryItem != "Any")
+				{
+					vars.LevelEntryItems[levelId + "_item"] = entryItem;
+					settings.Add(levelId + "_item", false, "Only if you have the " + vars.EquippableLabels[entryItem] + ".", levelId + "_enter");
+					settings.SetToolTip(levelId + "_item", "Tick this if you are using BTO and want to split after\ngetting the item (otherwise it will false split).");
+				}
+			}
+
+			if(exitLevel != "None")
+			{
+				settings.Add(levelId + "_exit", false, "Exit " + levelName, "levels");
+			}
 		}
-		return "";
-	});
+		#endregion
 
-	settings.Add("level_entry_any", true, "Enter Level (First time, any item)");
-	settings.Add("level_entry_item", true, "Enter Level With Item (First time)");
-	settings.Add("level_exit", true, "Exit Level (First time)");
-	vars.LevelSplitsDone = new Dictionary<string, bool>();
+		#region ItemSplit
+		// Item Splits
+		var levelItems = level.Element("Items");
+		if(levelItems == null) continue;
 
-	var SHOW_SET_IN_LABEL = false;
-	foreach(string key in vars.LevelLabels.Keys)
-	{
-		// split for entering the level with any item for the first time
-		if((vars.LevelSettingEntry[key] is Boolean && vars.LevelSettingEntry[key] != false)
-			|| vars.LevelSettingEntry[key] is String)
+		string levelSetId = "item-" + levelId;
+		settings.Add(levelSetId, false, "Split on collecting " + levelName + " items");
+
+		foreach(var item in levelItems.Elements("Item"))
 		{
-			string set = key + "_entry_any";
-			string label = SHOW_SET_IN_LABEL ? vars.LevelLabels[key] + " [" + set + "]" : vars.LevelLabels[key]; 
-			settings.Add(set, vars.DefaultSettings.Contains(set), label, "level_entry_any");
-			vars.LevelSplitsDone.Add(set, false);
-		}
+			string itemId = item.Attribute("ID").Value;
+			string itemName = item.Attribute("Name").Value;
+			string itemDesc = item.Attribute("Description").Value;
 
-		if(vars.LevelSettingEntry[key] is String)
-		{
-			string set = key + "_entry_item";
-			string label = SHOW_SET_IN_LABEL ? vars.LevelLabels[key] + " with " + vars.EquippableItemNames[vars.LevelSettingEntry[key]] + " [" + set + "]" : vars.LevelLabels[key] + " with " + vars.EquippableItemNames[vars.LevelSettingEntry[key]]; 
-			settings.Add(set, vars.DefaultSettings.Contains(set), label, "level_entry_item");
-			vars.LevelSplitsDone.Add(set, false);
-		}
+			string itemSetId = itemId + "-" + levelId;
+			settings.Add(itemSetId, false, itemName, levelSetId);
+			settings.SetToolTip(itemSetId, itemDesc);
 
-		if((vars.LevelSettingExit[key] is bool && vars.LevelSettingExit[key])
-			|| (vars.LevelSettingExit[key] is string))
-		{
-			string set = key + "_exit";
-			string label = vars.LevelLabels[key];
-			if(vars.LevelSettingExit[key] is string) label += " exit to " + vars.LevelLabels[vars.LevelSettingExit[key]];
-			label = SHOW_SET_IN_LABEL ? label + " [" + set + "]" : label; 
-
-			settings.Add(set, vars.DefaultSettings.Contains(set), label, "level_exit");
-			vars.LevelSplitsDone.Add(set, false);
+			vars.FoundItems[itemSetId] = false;
 		}
+		#endregion
 	}
+	#endregion
 
-	// Equippable Splits
-	vars.EquippableItemGot = new Dictionary<string, bool>();
-
-	settings.Add("equippables", false, "Equippable Pickup");
-	foreach (KeyValuePair<string, string> entry in vars.EquippableItemNames)
-	{
-		settings.Add(entry.Key, false, entry.Value, "equippables");
-		vars.EquippableItemGot.Add(entry.Key, false);
-	}
-
-	// Stat splits
 	vars.Stats = new string[] { "Speed", "Health", "Stamina", "Stealth" };
 	vars.StatMaxes = new Dictionary<string, int>();
 
-	settings.Add("stat", false, "Stat Increase (pill pickup)");
+	// settings.Add("stat", false, "Stat Increase (pill pickup)");
 	foreach(string stat in vars.Stats)
 	{
-		settings.Add(stat, false, stat, "stat");
-		vars.StatMaxes.Add(stat, 0);
+		// settings.Add(stat, false, stat, "stat");
+		vars.StatMaxes[stat] = 0;
 	}
 
-	vars.LoadingFrom = -1;
+	vars.ResetFound = (Action)(() => 
+	{
+		foreach(var key in new List<string>(vars.FoundItems.Keys))
+		{
+			vars.FoundItems[key] = false;
+		}
+
+		foreach(var key in new List<string>(vars.FoundEquippables.Keys))
+		{
+			vars.FoundEquippables[key] = false;
+		}
+	});
+
+	vars.GetLevel = (Func<int, string>)(scene =>
+	{
+		foreach(string key in vars.LevelScenes.Keys)
+		{
+			if(vars.LevelScenes[key].Contains(scene))
+				return key;
+		}
+		return "";
+	});
 }
 
 init
-{
-	vars.Unity.TryOnLoad = (Func<dynamic, bool>)(mono =>
+{	
+	vars.Helper.TryOnLoad = (Func<dynamic, bool>)(mono =>
 	{
-		var gp = mono.GetClass("GameParams", 1);
-		vars.Unity["Location"] = gp.Make<int>("Instance", "CurrentLocation");
+		// start and end split
+		var GameParams = mono.GetClass("GameParams", 1);
+		vars.Helper["Location"] = GameParams.Make<int>("Instance", "CurrentLocation");
 
-		var ec = mono.GetClass("EquippableController", 1);
-		var ii = mono.GetClass("InventoryItem");
+		var pim = mono.GetClass("PlayerInteractivityMode", 2);
+		// 0x18 - entries of the _states Dictionary
+		// 0x2C - 0x20 is the base of the entries array, each item is a struct of size 0x10 (0x0 - hashcode, 0x4 - next, 0x8 - key, 0xC - value)
+		// 			first item in the entries array is Incapacitated, so 0x20 + 0 * 0x10 + 0xC gives us whether or not we are incapacitated
+		vars.Helper["Incapacitated"] = pim.Make<bool>("Instance", "_states", 0x18, 0x2C);
 
-		vars.Unity["isEquipping"] = ec.Make<bool>("Instance", "_isEquipping");
-		vars.Unity["currentEquippedItem"] = ec.MakeString("Instance", "_currentEquippedItem", ii["DisplayName"]);
+		#region ExtraSplits
+		var PuzzleItem = mono.GetClass("PuzzleItem", 1); // extends InventoryItem
+		var ChapterData = mono.GetClass("ChapterData");
 
-		var ps = mono.GetClass("PlayerStats", 1);
+		var InventoryUI = mono.GetClass("InventoryUI");		
+		var Interactible = mono.GetClass("Interactible", 1);
+
+		// equippables
+		var EquippableController = mono.GetClass("EquippableController", 1);
+
+		vars.Helper["isEquipping"] = EquippableController.Make<bool>("Instance", "_isEquipping");
+		vars.Helper["CurrentEquipped"] = EquippableController.MakeString("Instance", "_currentEquippedItem", PuzzleItem["DisplayName"]);
+
+		// stats
+		var PlayerStats = mono.GetClass("PlayerStats", 1);
 		
 		foreach(string stat in vars.Stats) 
 		{
-			vars.Unity[stat] = ps.Make<int>("Instance", ps[stat]);
+			vars.Helper[stat] = PlayerStats.Make<int>("Instance", PlayerStats[stat]);
 		}
+		#endregion
+
+		#region ItemThings
+		vars.ReadInventoryItem = (Func<IntPtr, dynamic>)(iiPointer =>
+		{
+			dynamic iiObject = new ExpandoObject();
+			iiObject.DisplayName = vars.Helper.ReadString(iiPointer + PuzzleItem["DisplayName"]);
+
+			var chapter = vars.Helper.Read<IntPtr>(iiPointer + PuzzleItem["Chapter"]);
+			iiObject.Chapter = vars.Helper.ReadString(chapter + ChapterData["SceneName"]);
+
+			return iiObject;
+		});
+
+		vars.ReadVisiblePuzzleItems = (Func<IntPtr, List<dynamic>>)(invUIPointer =>
+		{
+			var visiblePuzzleItems = vars.Helper.ReadList<IntPtr>(invUIPointer + InventoryUI["_visiblePuzzleItems"]);
+			var ret = new List<dynamic>();
+
+			foreach(var puzzleItemP in visiblePuzzleItems)
+			{
+				ret.Add(vars.ReadInventoryItem(puzzleItemP));
+			}
+
+			return ret;
+		});
+		#endregion
 
 		return true;
 	});
 
-	vars.Unity.Load();
-}
-
-update
-{
-	if (!vars.Unity.Update()) return false;
-    
-    current.activeSceneIndex = vars.Unity.Scenes.Active.Index;
-	current.loadingScenes = vars.Unity.Scenes.Loading;
-	current.loadingSceneIndex = current.loadingScenes.Count == 0 || current.loadingScenes[0].Index > 200 ? -1 : current.loadingScenes[0].Index;
-
-	// Testing
-	vars.Watch("Location");
-	vars.Watch("Speed");
-	vars.Watch("Health");
-	vars.Watch("Stamina");
-	vars.Watch("Stealth");
-	vars.Watch("currentEquippedItem");
-	vars.Watch("isEquipping");
-	if(current.isLoading != old.isLoading) vars.Log("isLoading: " + old.isLoading + " -> " + current.isLoading);
-	
-	// Watch scene variables
-	if(old.loadingScenes.Count != current.loadingScenes.Count ||  
-		(current.loadingSceneIndex != -1 && old.loadingSceneIndex != current.loadingSceneIndex)
-	)
-	{
-		vars.Log("\nNew loading scenes [" + current.loadingScenes.Count + "]");
-		foreach(var scene in current.loadingScenes)
-		{
-			if(scene.Index <= 0) break;
-			vars.Log(scene.Index + ": " + scene.Name);
-		}
-	}
-	
-	if(old.activeSceneIndex != current.activeSceneIndex)
-	{
-		vars.Log("Active: " + current.activeSceneIndex);
-		if(current.activeSceneIndex == 7) vars.LoadingFrom = old.activeSceneIndex;
-	}
-
-}
-
-start
-{
-	return vars.Unity["Location"].Changed && vars.Unity["Location"].Current == 34;
-}
-
-split
-{
-	
-	// levels
-	if(current.loadingSceneIndex != -1 // no loading scenes (happens during BTO sequences, we dont need to split during these though)
-		&& old.loadingSceneIndex != current.loadingSceneIndex
-		&& current.loadingSceneIndex != 2 && current.loadingSceneIndex != 3) // Loading / GameManagers
-	{
-		string loadingLevel = vars.GetLevelFromScene(current.loadingSceneIndex);
-		string activeLevel = vars.GetLevelFromScene(vars.LoadingFrom);
-
-		if(loadingLevel == "" || activeLevel == "") 
-		{
-			vars.Log("Invalid loadingLevel or activeLevel: " + current.loadingSceneIndex + ", " + vars.LoadingFrom);
-		}
-		else if(loadingLevel == activeLevel)
-		{
-			vars.Log("Loading " + vars.LevelLabels[loadingLevel] + " from itself!");
-		}
-		else
-		{
-			vars.Log("We are loading " + vars.LevelLabels[loadingLevel] + " from " + vars.LevelLabels[activeLevel]);
-
-			string entry_any = loadingLevel + "_entry_any";
-			string entry_item = loadingLevel + "_entry_item";
-			string exit = activeLevel + "_exit";
-
-			// (All for the first time)
-			// Split when we are entering a specific level
-			if(settings.ContainsKey(entry_any) && !vars.LevelSplitsDone[entry_any] && settings[entry_any]) 
-			{
-				vars.LevelSplitsDone[entry_any] = true;
-				return true;
-			}
-
-			// Split when we are entering a specific level with a specific equippable
-			if(settings.ContainsKey(entry_item) && !vars.LevelSplitsDone[entry_item] && settings[entry_item]
-				&& vars.LevelSettingEntry[loadingLevel] is string
-				&& vars.EquippableItemGot.ContainsKey(vars.LevelSettingEntry[loadingLevel])
-				&& vars.EquippableItemGot[vars.LevelSettingEntry[loadingLevel]]
-			)
-			{
-				vars.LevelSplitsDone[entry_item] = true;
-				return true;
-			}
-			
-			// Split when we are exiting a specific level
-			if(settings.ContainsKey(exit) && !vars.LevelSplitsDone[exit] && settings[exit]) 
-			{	
-				if(vars.LevelSettingExit[activeLevel] is string && vars.LevelSettingExit[activeLevel] != loadingLevel) return false;
-
-				vars.LevelSplitsDone[exit] = true;
-				return true;
-			}
-				
-		}
-	}
-
-	// equippables
-	if (vars.Unity["isEquipping"].Changed)
-	{	
-		if(!vars.EquippableItemGot[vars.Unity["currentEquippedItem"].Current])
-		{
-			vars.EquippableItemGot[vars.Unity["currentEquippedItem"].Current] = true;
-			return settings[vars.Unity["currentEquippedItem"].Current];
-		}
-	}
-
-	// stats
-	foreach(string stat in vars.Stats)
-	{
-		if(vars.Unity[stat].Changed && vars.Unity[stat].Current > vars.StatMaxes[stat] && settings[stat])
-		{
-			vars.StatMaxes[stat] = vars.Unity[stat].Current;
-			return true;
-		}
-	}
-
-	// end split
-	if(vars.Unity["Location"].Current == 179) // roof
-	{
-		// placeholder
-	}
-
-	return false;
-}
-
-isLoading
-{
-	return !current.isLoading;
+	vars.Helper.Load();
+	vars.ResetFound();
+	current.loadingFromLevel = "empty";
+	current.loadingLevel = "empty";
+	current.activeLevel = "empty";
 }
 
 onStart
 {
-	// update maxes to current when run starts
-	foreach (string key in vars.Stats) vars.StatMaxes[key] = vars.Unity[key].Current;
+	vars.ResetFound();
+	vars.CompletedSplits.Clear();
+
+	foreach(string stat in vars.Stats)
+		vars.StatMaxes[stat] = 0;
 }
 
-onReset
+update
 {
-	// reset trackers
-	foreach (string key in new List<string>(vars.LevelSplitsDone.Keys)) vars.LevelSplitsDone[key] = false;
-	foreach (string key in vars.EquippableItemNames.Keys) vars.EquippableItemGot[key] = false;
-	foreach (string key in vars.Stats) vars.StatMaxes[key] = 0;
-	
+	if(!vars.Helper.Update()) return false;
+
+	current.isLoading = !current.isNotLoading;
+
+	current.activeSceneIndex = vars.Helper.Scenes.Active.Index;
+	current.loadingSceneIndex = vars.Helper.Scenes.Loading.Count == 0 || vars.Helper.Scenes.Loading[0].Index > 200 ? -1 : vars.Helper.Scenes.Loading[0].Index;
+
+	if(current.loadingLevel == "empty" || current.loadingSceneIndex != old.loadingSceneIndex)
+		current.loadingLevel = vars.GetLevel(current.loadingSceneIndex);
+
+	if(current.activeLevel == "empty" || current.activeSceneIndex != old.activeSceneIndex)
+		current.activeLevel = vars.GetLevel(current.activeSceneIndex);
+
+	if(old.activeSceneIndex != current.activeSceneIndex && current.activeSceneIndex == 7)
+		current.loadingFromLevel = vars.GetLevel(old.activeSceneIndex);
+
+	// debugging below
+	if(vars.Helper["Location"].Changed)
+	{
+		var oldloc = vars.Helper["Location"].Old;
+		var currloc = vars.Helper["Location"].Current;
+		vars.Log("Location: " + vars.Locations[oldloc] + " [" + oldloc + "] -> " + vars.Locations[currloc] + " [" + currloc + "]");
+	}
+
+	foreach(string stat in vars.Stats)
+	{
+		if(vars.Helper[stat].Changed && vars.Helper[stat].Current > vars.StatMaxes[stat])
+		{
+			vars.StatMaxes[stat] = vars.Helper[stat].Current;
+			var loc = vars.Helper["Location"].Current;
+			vars.Log("Stat increase! " + stat + " increased to " + vars.StatMaxes[stat] + "! Location: " + vars.Locations[loc] + " [" + loc + "]");
+			return true;
+		}
+	}
+	// if(current.isLoading != old.isLoading) vars.Log("Loading: " + old.isLoading + " -> " + current.isLoading);
+	// if(vars.Helper["CurrentEquipped"].Changed) vars.Log(vars.Helper["CurrentEquipped"].Current);
+
+	// if(old.loadingLevel != current.loadingLevel) vars.Log("loadingLevel: " + old.loadingLevel + " -> " + current.loadingLevel);
+	// if(old.activeLevel != current.activeLevel) vars.Log("activeLevel: " + old.activeLevel + " -> " + current.activeLevel);
+	// if(old.loadingFromLevel != current.loadingFromLevel) vars.Log("loadingFromLevel: " + old.loadingFromLevel + " -> " + current.loadingFromLevel);
+}
+
+start
+{
+	// the trash room you spawn in is 34, and this gets updated once you gain control
+	return vars.Helper["Location"].Changed && vars.Helper["Location"].Current == 34;
+}
+
+split
+{
+	// End Split - 179 is the roof
+	if(vars.Helper["Incapacitated"].Changed && vars.Helper["Incapacitated"].Current && vars.Helper["Location"].Current == 179)
+	{
+		vars.Log("End detected! GG!");
+		return true;
+	}
+
+	// Level Events (Enter / Exit)
+	if(settings["levels"] && current.loadingLevel != old.loadingLevel
+	   && current.loadingFromLevel != current.loadingLevel
+	   && current.loadingLevel != "" && current.loadingFromLevel != "")
+	{
+		string enter = current.loadingLevel + "_enter";
+		string enterItem = current.loadingLevel + "_item";
+		string exit = current.loadingFromLevel + "_exit";
+
+		if(settings.ContainsKey(enter) && settings[enter] && !vars.CompletedSplits.Contains(enter)
+		&& (!settings.ContainsKey(enterItem) || (settings[enterItem] && vars.EquippableItemGot[vars.LevelEntryItems[enterItem]])))
+		{
+			vars.CompletedSplits.Add(enter);
+			vars.Log("Entering " + current.loadingLevel + "!");
+			return true;
+		}
+
+		if(settings.ContainsKey(exit) && settings[exit] && !vars.CompletedSplits.Contains(exit))
+		{
+			vars.CompletedSplits.Add(exit);
+			vars.Log("Exiting " + current.loadingFromLevel + "!");
+			return true;
+		}
+	}
+
+	// Equippables (Flashlight, etc)
+	if(settings["equippables"] && vars.Helper["isEquipping"].Current
+	&& !vars.FoundEquippables[vars.Helper["CurrentEquipped"].Current])
+	{
+		vars.FoundEquippables[vars.Helper["CurrentEquipped"].Current] = true;
+		vars.Log("Equipped " + vars.Helper["CurrentEquipped"].Current + "!");
+		return settings[vars.Helper["CurrentEquipped"].Current];
+	}
+
+	// Puzzle Items (In the inventory)
+	if(current.isLoading || current.inventoryUI == 0) return false;
+
+	var visiblePuzzleItems = vars.ReadVisiblePuzzleItems(new IntPtr(current.inventoryUI));
+	foreach(var puzzleItem in visiblePuzzleItems)
+	{
+		var id = puzzleItem.DisplayName + "-" + puzzleItem.Chapter;
+		if(id == "item-hub-record-rosemary-name-") id += "C_Forest";
+
+		if(!settings[id] || vars.FoundItems[id])
+			continue;
+		
+		vars.FoundItems[id] = true;
+		vars.Log("Collected item: " + id);
+		return true;
+	}
+}
+
+isLoading
+{
+	return current.isLoading;
 }
 
 exit
 {
-	vars.Unity.Dispose();
+	vars.Helper.Dispose();
 }
 
 shutdown
 {
-	vars.Unity.Dispose();
+	vars.Helper.Dispose();
 }
-
