@@ -1,0 +1,180 @@
+<Data>
+	<Equippables>
+		<Equippable ID="flashlight-name" Name="Flashlight" Description="It's an old flashlight, hopefully there are enough batteries around." />
+		<Equippable ID="mirror-name" Name="Mirror Shard" Description="A mirror shard. It's reflective and sharp." />
+		<Equippable ID="pistol-name" Name="Pistol" Description="Old and reliable. It's been a long time since I've shot one of these." />
+		<Equippable ID="gasmask-name" Name="Gas Mask" Description="The straps are broken, I'll have to hold it." />
+		<Equippable ID="flaregun-name" Name="Flare Gun" Description="I can defend myself using its light." />
+		<Equippable ID="lurepill-name" Name="Lure Pill" Description="Monsters seem to like it. Maybe I should try." />
+		<Equippable ID="shotgun-name" Name="Shotgun" Description="Rusty, great for crowd control." />
+		<Equippable ID="radio-name" Name="Radio" Description="Looks custom-made, no idea how it works." />
+	</Equippables>
+	<Levels>
+		<Level ID="Hub_1" Name="Building">
+			<Scenes>
+				<Scene Index="4" Name="Hub_1" />
+				<Scene Index="5" Name="Hub_Outside_1" />
+				<Scene Index="6" Name="Hub_Env_1" />
+			</Scenes>
+			<Items>
+				<Item ID="item-hub-basement-key-hallway-name" Name="Hallway Key" Description="It's a key for the hallway door." /> 
+				<Item ID="item-hub-basement-fuse-name" Name="Fuse" Description="It's a large electrical fuse." /> 
+				<Item ID="item-hub-pistol-part-1-name" Name="Pistol Grip" Description="The grip piece of a pistol." /> 
+				<Item ID="item-hub-pistol-part-2-name" Name="Pistol Barrel" Description="The barrel piece of a pistol." /> 
+				<Item ID="item-hub-pistol-part-3-name" Name="Pistol Slide" Description="The slide piece of a pistol." /> 
+				<Item ID="item-hub-top-floor-elevator-button-1-name" Name="Elevator Button" Description="Probably for the 1st floor." /> 
+				<Item ID="item-hub-tape-desmond-name" Name="Tape - Desmond" Description="A white cassette tape.&#10;Did I record this? I must have..." /> 
+				<Item ID="item-hub-tape-watcher-name" Name="Tape - Virginia" Description="A purple cassette tape of my recorded sessions with Virginia." /> 
+				<Item ID="item-hub-tape-shade-name" Name="Tape - Allen" Description="A yellow cassette tape of my recorded sessions with Allen." /> 
+				<Item ID="item-hub-tape-bull-name" Name="Tape - Max" Description="A red cassette tape of my recorded sessions with Max." /> 
+				<Item ID="item-hub-tape-flash-name" Name="Tape - Lucas" Description="A green cassette tape of my recorded sessions with Lucas." /> 
+				<Item ID="item-hub-tape-rainbow-name" Name="Tape - Rainbow" Description="I can't tell its color. This doesn't seem right." /> 
+				<Item ID="item-supermarket-coin-name" Name="Homa-Mart Coin" Description="It's a coin with the Homa-Mart logo on it." /> 
+				<Item ID="item-hub-key-aprt-virginia-1-name" Name="Virginia's Key" Description="I found it in her apartment." /> 
+				<Item ID="item-hub-top-floor-key-tonia-1-name" Name="Bedroom Key" Description="For the locked room in my apartment." /> 
+				<Item ID="item-hub-record-watcher-name" Name="Vinyl - Virginia" Description="A purple vinyl." /> 
+				<Item ID="item-hub-record-shade-name" Name="Vinyl - Allen" Description="A yellow vinyl." /> 
+				<Item ID="item-hub-record-bull-name" Name="Vinyl - Max" Description="A red vinyl." /> 
+				<Item ID="item-hub-record-flash-name" Name="Vinyl - Lucas" Description="A green vinyl." /> 
+				<Item ID="item-hub-record-desmond-name" Name="Vinyl - Desmond" Description="A white vinyl." /> 
+			</Items>
+		</Level>
+		<Level ID="Tape_Desmond_1" Name="Desmond's Tape" EntryItem="Any" ExitLevel="Any">
+			<Scenes>
+				<Scene Index="28" Name="Tape_Desmond_1" />
+			</Scenes>
+		</Level>
+		<Level ID="Tape_Watcher_1" Name="Virginia's Tape" EntryItem="Any">
+			<Scenes>
+				<Scene Index="29" Name="Tape_Watcher_1" />
+			</Scenes>
+		</Level>
+		<Level ID="C_Supermarket" Name="Homa-Mart" EntryItem="Any" ExitLevel="Any">
+			<Scenes>
+				<Scene Index="10" Name="C_Supermarket" />
+				<Scene Index="11" Name="C_Supermarket_env_1" />
+				<Scene Index="12" Name="C_Supermarket_env_2" />
+			</Scenes>
+			<Items>
+				<Item ID="item-supermarket-register-item-1-name" Name="Homa-Mart Postcard" Description="The price tag says $2.00" /> 
+				<Item ID="item-supermarket-register-item-2-name" Name="Point Icarus Postcard" Description="The price tag says $1.00" /> 
+				<Item ID="item-supermarket-register-item-3-name" Name="Mayer Pharmaceuticals Postcard" Description="The price tag says $0.50" /> 
+				<Item ID="item-supermarket-register-item-4-name" Name="Elysium State Park Postcard" Description="The price tag says $1.99" /> 
+				<Item ID="item-supermarket-coin-name" Name="Homa-Mart Coin" Description="It's a coin with the Homa-Mart logo on it." /> 
+				<Item ID="item-hub-basement-fuse-name" Name="Fuse" Description="It's a large electrical fuse." /> 
+				<Item ID="item-supermarket-key-east-wing-name" Name="East Wing Key" Description="The words &quot;Maintenance East Wing&quot; are written on it." /> 
+				<Item ID="item-supermarket-key-west-wing-name" Name="West Wing Key" Description="The words &quot;Maintenance West Wing&quot; are written on it." /> 
+				<Item ID="item-supermarket-key-forklift-name" Name="Ignition Key" Description="I wonder what vehicle this belongs to." /> 
+				<Item ID="item-supermarket-key-locker-name" Name="Locker Key" Description="Belongs to Dave." /> 
+				<Item ID="item-supermarket-key-freezer-name" Name="Freezer Key" Description="Better get out of here quick!" /> 
+				<Item ID="item-supermarket-punch-card-name" Name="Punch Card" Description="Someone is running late." /> 
+				<Item ID="item-supermarket-doll-mom-name" Name="Mom Doll" Description="It's her mom." /> 
+				<Item ID="item-supermarket-doll-dad-name" Name="Dad Doll" Description="It's her dad." /> 
+				<Item ID="item-supermarket-doll-bro-name" Name="Brother Doll" Description="It's her brother." /> 
+				<Item ID="item-supermarket-doll-sis-name" Name="Daughter Doll" Description="It's her." /> 
+				<Item ID="item-supermarket-block-1-name" Name="D Block" Description="It's a red block with the letter D on it." /> 
+				<Item ID="item-supermarket-block-2-name" Name="E Block" Description="It's a blue block with the letter E on it." /> 
+				<Item ID="item-supermarket-block-3-name" Name="A Block" Description="It's a green block with the letter A on it." /> 
+				<Item ID="item-supermarket-block-4-name" Name="T Block" Description="It's a yellow block with the letter T on it." /> 
+				<Item ID="item-supermarket-block-5-name" Name="H Block" Description="It's a purple block with the letter H on it." /> 
+				<Item ID="item-supermarket-sticky-note-name" Name="Pen And Sticky Notes" Description="It's a bunch of sticky notes and a pen, no idea what to do with it." /> 
+			</Items>
+		</Level>
+		<Level ID="Tape_Shade_1" Name="Allen's Tape" EntryItem="flaregun-name">
+			<Scenes>
+				<Scene Index="30" Name="Tape_Shade_1" />
+			</Scenes>
+		</Level>
+		<Level ID="C_Lighthouse" Name="Point Icarus" EntryItem="Any" ExitLevel="Any">
+			<Scenes>
+				<Scene Index="13" Name="C_Lighthouse" />
+				<Scene Index="14" Name="C_Lighthouse_env1" />
+				<Scene Index="15" Name="C_Lighthouse_env2" />
+				<Scene Index="16" Name="C_Lighthouse_Walls" />
+				<Scene Index="17" Name="C_Lighthouse_splines" />
+			</Scenes>
+			<Items>
+				<Item ID="item-lighthouse-bulb-name" Name="The Light" Description="I have to restore it." /> 
+				<Item ID="item-lighthouse-fuse-1-name" Name="Fuse" Description="It's a large electrical fuse." /> 
+				<Item ID="item-lighthouse-oil-can-1-name" Name="Oil Can" Description="It still has some oil left in it." /> 
+				<Item ID="item-lighthouse-courtyard-key-1-name" Name="Lighthouse Courtyard Key" Description="It's the key to the backside of the lighthouse." /> 
+				<Item ID="item-lighthouse-crank-1-name" Name="Crank Wheel" Description="An old crank wheel, I can probably connect it somewhere." /> 
+				<Item ID="item-lighthouse-glitch-key-1-name" Name="??????? ?????" Description="????????? ?????? ????? ???????? ?????" /> 
+				<Item ID="item-lighthouse-crane-key-1-name" Name="Crane Gate Key" Description="I can use this key to access the wharf crane." /> 
+				<Item ID="item-lighthouse-chain-door-key-1-name" Name="TV Key" Description="It feels statickey." /> 
+				<Item ID="item-lighthouse-chain-door-key-2-name" Name="Clock Key" Description="No time to think about it." /> 
+				<Item ID="item-lighthouse-chain-door-key-3-name" Name="Buoy Key" Description="I'm not even sure how I grabbed it." /> 
+			</Items>
+		</Level>
+		<Level ID="Tape_Bull_1" Name="Max's Tape" EntryItem="lurepill-name">
+			<Scenes>
+				<Scene Index="31" Name="Tape_Bull_1" />
+			</Scenes>
+		</Level>
+		<Level ID="C_Factory" Name="Old Factory" EntryItem="Any" ExitLevel="Any">
+			<Scenes>
+				<Scene Index="18" Name="C_Factory" />
+				<Scene Index="19" Name="C_Factory_env1" />
+				<Scene Index="20" Name="C_Factory_env2" />
+				<Scene Index="21" Name="C_Factory_Walls" />
+				<Scene Index="22" Name="C_Factory_splines" />
+			</Scenes>
+			<Items>
+				<Item ID="item-factory-hangar-key-1-name" Name="Hangar Key" Description="Now to figure out how to get there." /> 
+				<Item ID="item-factory-screwdriver-1-name" Name="Screwdriver" Description="I can probably screw around with it." /> 
+				<Item ID="item-factory-chip-1-name" Name="Shinitzu Chip - 1V" Description="A multi-purpose chip, fits a specific slot." /> 
+				<Item ID="item-factory-chip-2-name" Name="Shinitzu Chip - 2V" Description="A multi-purpose chip, fits a specific slot." /> 
+				<Item ID="item-factory-chip-3-name" Name="Shinitzu Chip - 3V" Description="A multi-purpose chip, fits a specific slot." /> 
+				<Item ID="item-factory-key-card-1-name" Name="Key Card" Description="A key card, it has the name Rosemary on it." /> 
+				<Item ID="item-factory-key-incinerator-1-name" Name="Incinerator Room Key" Description="Might be a way to the bottom floor." /> 
+				<Item ID="item-factory-lure-jar-1-name" Name="Empty Pill Jar" Description="The label says &quot;experimental&quot;." /> 
+				<Item ID="item-factory-lure-compound-1-name" Name="Triptocybin mushroom extract &quot;Ricordea&quot;" Description="It's a vial with glowing blue liquid." /> 
+				<Item ID="item-factory-lure-compound-2-name" Name="Bo'lepo pheromone mix" Description="It's a vial with glowing purple liquid." /> 
+				<Item ID="item-factory-lure-compound-3-name" Name="Triptocybin mushroom extract &quot;Reekus&quot;" Description="It's a vial with glowing green liquid." /> 
+			</Items>
+		</Level>
+		<Level ID="Tape_Flash_1" Name="Lucas' Tape" EntryItem="radio-name">
+			<Scenes>
+				<Scene Index="32" Name="Tape_Flash_1" />
+			</Scenes>
+		</Level>
+		<Level ID="C_Forest" Name="Elysium Park" EntryItem="Any" ExitLevel="Any">
+			<Scenes>
+				<Scene Index="23" Name="C_Forest" />
+				<Scene Index="24" Name="C_Forest_env1" />
+				<Scene Index="25" Name="C_Forest_env2" />
+				<Scene Index="26" Name="C_Forest_Splines" />
+				<Scene Index="27" Name="C_Forest_Walls" />
+			</Scenes>
+			<Items>
+				<Item ID="item-forest-valve-1-name" Name="Valve" Description="From its base it looks reusable." /> 
+				<Item ID="item-forest-door-way-key-1-name" Name="Sewer Door Key" Description="It's got smudge all over it." /> 
+				<Item ID="item-forest-door-way-key-2-name" Name="Old Key" Description="Reminds me of a key I had once." /> 
+				<Item ID="item-forest-door-way-key-3-name" Name="Restroom Key" Description="Are there even any bathrooms around?" /> 
+				<Item ID="item-forest-door-way-key-4-name" Name="My office key" Description="What the hell is it doing here?" /> 
+				<Item ID="item-forest-cable-ticket-1-name" Name="Ride Ticket" Description="It's a ticket for the cable car ride, oh boy!" /> 
+				<Item ID="item-forest-cliff-key-1-name" Name="Cliff Key" Description="I can use this to open a shortcut to the forest." /> 
+				<Item ID="item-forest-watch-tower-key-1-name" Name="Keychain Key A" Description="I took it off the keychain in the visitor center." /> 
+				<Item ID="item-forest-lookout-key-1-name" Name="Keychain Key B" Description="I took it off the keychain in the visitor center." /> 
+				<Item ID="item-forest-toilet-key-1-name" Name="Keychain Key C" Description="I took it off the keychain in the visitor center." /> 
+				<Item ID="item-forest-medalion-watcher-1-name" Name="Medusa Medallion" Description="She seems familiar." /> 
+				<Item ID="item-forest-medalion-shade-1-name" Name="Icarus Medallion" Description="From the bottom of the pit." /> 
+				<Item ID="item-forest-medalion-bull-1-name" Name="Minotaur Medallion" Description="Lost in his own maze." /> 
+				<Item ID="item-forest-medalion-flash-1-name" Name="Cyclops Medallion" Description="A one eyed giant." /> 
+				<Item ID="item-hub-record-rosemary-name" Name="Vinyl - Rosemary" Description="A blue vinyl." /> 
+			</Items>
+		</Level>
+		<Level ID="Tape_Rainbow_1" Name="Rainbow Tape" EntryItem="Any" ExitLevel="Any">
+			<Scenes>
+				<Scene Index="33" Name="Tape_Rainbow_1" />
+			</Scenes>
+			<Items>
+				<Item ID="item-final-boss-tape-1-name" Name="Tape - Watcher" Description="I was helping her overcome her fear of being looked at." /> 
+				<Item ID="item-final-boss-tape-2-name" Name="Tape - Shade" Description="I was helping him overcome his fear of the dark." /> 
+				<Item ID="item-final-boss-tape-3-name" Name="Tape - Bull" Description="I was helping him overcome his anger." /> 
+				<Item ID="item-final-boss-tape-4-name" Name="Tape - Flash" Description="I believe him." /> 
+				<Item ID="item-final-boss-tape-5-name" Name="Tape - Rainbow" Description="I have to defeat him." /> 
+			</Items>
+		</Level>
+	</Levels>
+</Data>
