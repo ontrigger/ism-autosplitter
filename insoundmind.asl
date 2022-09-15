@@ -293,7 +293,7 @@ split
 		string exit = current.loadingFromLevel + "_exit";
 
 		if(settings.ContainsKey(enter) && settings[enter] && !vars.CompletedSplits.Contains(enter)
-		&& (!settings.ContainsKey(enterItem) || (settings[enterItem] && vars.EquippableItemGot[vars.LevelEntryItems[enterItem]])))
+		&& (!settings.ContainsKey(enterItem) || (settings[enterItem] && vars.FoundEquippables[vars.LevelEntryItems[enterItem]])))
 		{
 			vars.CompletedSplits.Add(enter);
 			vars.Log("Entering " + current.loadingLevel + "!");
