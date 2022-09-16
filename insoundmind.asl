@@ -141,6 +141,8 @@ startup
 		}
 		return "";
 	});
+
+	vars.Helper.AlertLoadless("In Sound Mind");
 }
 
 init
