@@ -29,6 +29,7 @@ startup
 
 	settings.Add("levels", false, "Split on level events");
 	settings.Add("equippables", false, "Split on equippable pickup");
+	settings.Add("items", false, "Split on item pickup");
 	
 	foreach(var equippable in xml.Element("Equippables").Elements("Equippable"))
 	{
@@ -91,7 +92,7 @@ startup
 		if(levelItems == null) continue;
 
 		string levelSetId = "item-" + levelId;
-		settings.Add(levelSetId, false, "Split on collecting " + levelName + " items");
+		settings.Add(levelSetId, false, levelName, "items");
 
 		foreach(var item in levelItems.Elements("Item"))
 		{
