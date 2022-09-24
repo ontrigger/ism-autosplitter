@@ -1,5 +1,6 @@
 state("In Sound Mind")
 {
+	// used in the first versions of the autosplitter and is now just grandfathered in as the loading variable for consistency's sake
 	bool isNotLoading: "UnityPlayer.dll", 0x19FB7C8, 0x78;
 	// No static reference to this class I could find unfortunately
 	long inventoryUI: "UnityPlayer.dll", 0x01952CC0, 0x330, 0x48, 0x168, 0x30, 0x30, 0x18, 0x28;
