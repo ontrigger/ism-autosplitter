@@ -297,7 +297,7 @@ split
 		string exit = current.loadingFromLevel + "_exit";
 
 		if(settings.ContainsKey(enter) && settings[enter] && !vars.CompletedSplits.Contains(enter)
-		&& (!settings.ContainsKey(enterItem) || (settings[enterItem] && vars.FoundEquippables[vars.LevelEntryItems[enterItem]])))
+		&& (!settings.ContainsKey(enterItem) || !settings[enterItem] || (settings[enterItem] && vars.FoundEquippables[vars.LevelEntryItems[enterItem]])))
 		{
 			vars.CompletedSplits.Add(enter);
 			vars.Log("Entering " + current.loadingLevel + "!");
@@ -313,7 +313,7 @@ split
 	}
 
 	// Equippables (Flashlight, etc)
-	if(settings["equippables"] && vars.Helper["isEquipping"].Current
+	if(vars.Helper["isEquipping"].Current
 	&& !vars.FoundEquippables[vars.Helper["CurrentEquipped"].Current])
 	{
 		vars.FoundEquippables[vars.Helper["CurrentEquipped"].Current] = true;
