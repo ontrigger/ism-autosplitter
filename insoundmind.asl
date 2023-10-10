@@ -11,9 +11,8 @@ startup
 	vars.Log = (Action<object>)(output => print("[ISM-ASL] " + output));
 	vars.Watch = (Action<string>)(key => { if(vars.Helper[key].Changed) vars.Log(key + ": " + vars.Helper[key].Old + " -> " + vars.Helper[key].Current); });
 
-	var bytes = File.ReadAllBytes(@"Components\LiveSplit.ASLHelper.bin");
-	var type = Assembly.Load(bytes).GetType("ASLHelper.Unity");
-	vars.Helper = Activator.CreateInstance(type, timer, this);
+    Assembly.Load(File.ReadAllBytes("Components/asl-help")).CreateInstance("Unity");
+    vars.Helper.GameName = "In Sound Mind";
 	vars.Helper.LoadSceneManager = true;
 
 	vars.FoundEquippables = new Dictionary<string, bool>();
@@ -144,12 +143,12 @@ startup
 		return "";
 	});
 
-	vars.Helper.AlertLoadless("In Sound Mind");
+	vars.Helper.AlertLoadless();
 }
 
 init
 {	
-	vars.Helper.TryOnLoad = (Func<dynamic, bool>)(mono =>
+	vars.Helper.TryLoad = (Func<dynamic, bool>)(mono =>
 	{
 		// start and end split
 		var GameParams = mono.GetClass("GameParams", 1);
@@ -212,11 +211,12 @@ init
 		return true;
 	});
 
-	vars.Helper.Load();
 	vars.ResetFound();
 	current.loadingFromLevel = "empty";
 	current.loadingLevel = "empty";
 	current.activeLevel = "empty";
+	current.activeSceneNameRaw = "empty";
+	current.loadingSceneNameRaw = "empty";
 }
 
 onStart
@@ -230,12 +230,13 @@ onStart
 
 update
 {
-	if(!vars.Helper.Update()) return false;
-
 	current.isLoading = !current.isNotLoading;
 
 	current.activeSceneIndex = vars.Helper.Scenes.Active.Index;
-	current.loadingSceneIndex = vars.Helper.Scenes.Loading.Count == 0 || vars.Helper.Scenes.Loading[0].Index > 200 ? -1 : vars.Helper.Scenes.Loading[0].Index;
+	current.loadingSceneIndex = vars.Helper.Scenes.Loaded.Count == 0 || vars.Helper.Scenes.Loaded[0].Index > 200 ? -1 : vars.Helper.Scenes.Loaded[0].Index;
+
+    current.activeSceneNameRaw = vars.Helper.Scenes.Active.Name ?? current.activeSceneNameRaw;
+    current.loadingSceneNameRaw = vars.Helper.Scenes.Loaded.Count == 0 ? current.loadingSceneNameRaw : vars.Helper.Scenes.Loaded[0].Name;
 
 	if(current.loadingLevel == "empty" || current.loadingSceneIndex != old.loadingSceneIndex)
 		current.loadingLevel = vars.GetLevel(current.loadingSceneIndex);
@@ -267,9 +268,11 @@ update
 	// if(current.isLoading != old.isLoading) vars.Log("Loading: " + old.isLoading + " -> " + current.isLoading);
 	// if(vars.Helper["CurrentEquipped"].Changed) vars.Log(vars.Helper["CurrentEquipped"].Current);
 
-	// if(old.loadingLevel != current.loadingLevel) vars.Log("loadingLevel: " + old.loadingLevel + " -> " + current.loadingLevel);
-	// if(old.activeLevel != current.activeLevel) vars.Log("activeLevel: " + old.activeLevel + " -> " + current.activeLevel);
-	// if(old.loadingFromLevel != current.loadingFromLevel) vars.Log("loadingFromLevel: " + old.loadingFromLevel + " -> " + current.loadingFromLevel);
+	if(old.loadingLevel != current.loadingLevel) vars.Log("loadingLevel: " + old.loadingLevel + " -> " + current.loadingLevel);
+	if(old.activeLevel != current.activeLevel) vars.Log("activeLevel: " + old.activeLevel + " -> " + current.activeLevel);
+	if(old.loadingFromLevel != current.loadingFromLevel) vars.Log("loadingFromLevel: " + old.loadingFromLevel + " -> " + current.loadingFromLevel);
+	if(old.activeSceneNameRaw != current.activeSceneNameRaw) vars.Log("activeSceneNameRaw: " + old.activeSceneNameRaw + " -> " + current.activeSceneNameRaw);
+	if(old.loadingSceneNameRaw != current.loadingSceneNameRaw) vars.Log("loadingSceneNameRaw: " + old.loadingSceneNameRaw + " -> " + current.loadingSceneNameRaw);
 }
 
 start
@@ -342,14 +345,4 @@ split
 isLoading
 {
 	return current.isLoading;
-}
-
-exit
-{
-	vars.Helper.Dispose();
-}
-
-shutdown
-{
-	vars.Helper.Dispose();
 }
