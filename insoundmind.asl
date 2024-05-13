@@ -226,21 +226,41 @@ onStart
 
 	foreach(string stat in vars.Stats)
 		vars.StatMaxes[stat] = 0;
+
+    vars.Log("loadingLevel: " + current.loadingLevel);
+	vars.Log("activeLevel: " + current.activeLevel);
+	vars.Log("loadingFromLevel: " + current.loadingFromLevel);
+	vars.Log("loadingSceneIndex: " + current.loadingSceneIndex);
+	vars.Log("activeSceneNameRaw: " + current.activeSceneNameRaw);
+    vars.Log("loadingSceneNameRaw: " + current.loadingSceneNameRaw);
+    vars.Log("loadedCount: " + current.loadedCount);
 }
+// [11772] Member 'AslHelp..get' cannot be accessed with an instance reference; qualify it with a type name instead
 
 update
 {
 	current.isLoading = !current.isNotLoading;
 
 	current.activeSceneIndex = vars.Helper.Scenes.Active.Index;
+    // vars.Log("vars.Helper.Scenes.Loaded.Count: " + vars.Helper.Scenes.Loaded.Count);
 	current.loadingSceneIndex = vars.Helper.Scenes.Loaded.Count == 0 || vars.Helper.Scenes.Loaded[0].Index > 200 ? -1 : vars.Helper.Scenes.Loaded[0].Index;
 
     current.activeSceneNameRaw = vars.Helper.Scenes.Active.Name ?? current.activeSceneNameRaw;
     current.loadingSceneNameRaw = vars.Helper.Scenes.Loaded.Count == 0 ? current.loadingSceneNameRaw : vars.Helper.Scenes.Loaded[0].Name;
+    current.loadedCount = vars.Helper.Scenes.Loaded.Count;
+
+    if (old.loadedCount != current.loadedCount) {
+        vars.Log("--- " + current.loadedCount);
+        foreach (var Scene in vars.Helper.Scenes.Loaded) {
+            vars.Log(Scene.Name);
+        }
+    }
 
 	if(current.loadingLevel == "empty" || current.loadingSceneIndex != old.loadingSceneIndex)
+    {
 		current.loadingLevel = vars.GetLevel(current.loadingSceneIndex);
-
+    }
+    
 	if(current.activeLevel == "empty" || current.activeSceneIndex != old.activeSceneIndex)
 		current.activeLevel = vars.GetLevel(current.activeSceneIndex);
 
@@ -271,6 +291,7 @@ update
 	if(old.loadingLevel != current.loadingLevel) vars.Log("loadingLevel: " + old.loadingLevel + " -> " + current.loadingLevel);
 	if(old.activeLevel != current.activeLevel) vars.Log("activeLevel: " + old.activeLevel + " -> " + current.activeLevel);
 	if(old.loadingFromLevel != current.loadingFromLevel) vars.Log("loadingFromLevel: " + old.loadingFromLevel + " -> " + current.loadingFromLevel);
+	if(old.loadingSceneIndex != current.loadingSceneIndex) vars.Log("loadingSceneIndex: " + old.loadingSceneIndex + " -> " + current.loadingSceneIndex);
 	if(old.activeSceneNameRaw != current.activeSceneNameRaw) vars.Log("activeSceneNameRaw: " + old.activeSceneNameRaw + " -> " + current.activeSceneNameRaw);
 	if(old.loadingSceneNameRaw != current.loadingSceneNameRaw) vars.Log("loadingSceneNameRaw: " + old.loadingSceneNameRaw + " -> " + current.loadingSceneNameRaw);
 }
