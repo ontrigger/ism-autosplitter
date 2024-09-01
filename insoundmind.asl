@@ -16,6 +16,7 @@ startup
 
 	vars.FoundEquippables = new Dictionary<string, bool>();
 	vars.FoundItems = new Dictionary<string, bool>();
+	vars.VisitedLocations = new Dictionary<string, bool>();
 	vars.EquippableLabels = new Dictionary<string, string>();
 	vars.LevelEntryItems = new Dictionary<string, string>();
 	vars.LevelScenes = new Dictionary<string, List<int>>();
@@ -29,6 +30,7 @@ startup
 	settings.Add("levels", false, "Split on level events");
 	settings.Add("equippables", false, "Split on equippable pickup");
 	settings.Add("items", false, "Split on item pickup");
+	settings.Add("locations", false, "Split on entering location");
 	
 	foreach(var equippable in xml.Element("Equippables").Elements("Equippable"))
 	{
@@ -88,23 +90,46 @@ startup
 		#region ItemSplit
 		// Item Splits
 		var levelItems = level.Element("Items");
-		if(levelItems == null) continue;
+		if(levelItems != null)
+        {
+            string levelSetId = "item-" + levelId;
+            settings.Add(levelSetId, false, levelName, "items");
 
-		string levelSetId = "item-" + levelId;
-		settings.Add(levelSetId, false, levelName, "items");
+            foreach(var item in levelItems.Elements("Item"))
+            {
+                string itemId = item.Attribute("ID").Value;
+                string itemName = item.Attribute("Name").Value;
+                string itemDesc = item.Attribute("Description").Value;
 
-		foreach(var item in levelItems.Elements("Item"))
-		{
-			string itemId = item.Attribute("ID").Value;
-			string itemName = item.Attribute("Name").Value;
-			string itemDesc = item.Attribute("Description").Value;
+                string itemSetId = itemId + "-" + levelId;
+                settings.Add(itemSetId, false, itemName, levelSetId);
+                settings.SetToolTip(itemSetId, itemDesc);
 
-			string itemSetId = itemId + "-" + levelId;
-			settings.Add(itemSetId, false, itemName, levelSetId);
-			settings.SetToolTip(itemSetId, itemDesc);
+                vars.FoundItems[itemSetId] = false;
+            }
+        }
+		#endregion
 
-			vars.FoundItems[itemSetId] = false;
-		}
+		#region LocationSplit
+		// Location Splits
+		var levelLocations = level.Element("Locations");
+        
+		if(levelLocations != null)
+        {
+            string levelLocationSetId = "loc-" + levelId;
+            settings.Add(levelLocationSetId, false, levelName, "locations");
+
+            foreach(var location in levelLocations.Elements("Location"))
+            {
+                string locIndex = location.Attribute("Index").Value;
+                string locName = location.Attribute("Name").Value;
+
+                string locSetId = "loc-" + locIndex;
+                settings.Add(locSetId, false, locName, levelLocationSetId);
+
+                vars.VisitedLocations[locSetId] = false;
+            }
+        }
 		#endregion
 	}
 	#endregion
@@ -130,6 +155,11 @@ startup
 		{
 			vars.FoundEquippables[key] = false;
 		}
+
+		foreach(var key in new List<string>(vars.VisitedLocations.Keys))
+		{
+			vars.VisitedLocations[key] = false;
+		}
 	});
 
 	vars.GetLevel = (Func<int, string>)(scene =>
@@ -151,7 +181,7 @@ init
 	{
 		// start and end split
 		var GameParams = mono.GetClass("GameParams", 1);
-		vars.Helper["Location"] = GameParams.Make<int>("Instance", "CurrentLocation");
+		vars.Helper["location"] = GameParams.Make<int>("Instance", "CurrentLocation");
 
 		var pim = mono.GetClass("PlayerInteractivityMode", 2);
 		// 0x18 - entries of the _states Dictionary
@@ -223,6 +253,15 @@ onStart
 
 	foreach(string stat in vars.Stats)
 		vars.StatMaxes[stat] = 0;
+
+    timer.IsGameTimePaused = current.isLoading;
+
+    // vars.Log("vars.Helper.Scenes: " + SceneManager.Address);
+    // vars.Log("activeLevel: " + current.activeLevel);
+    // vars.Log("loadingLevel: " + current.loadingLevel);
+    // vars.Log("loadingFromLevel: " + current.loadingFromLevel);
+    // vars.Log("vars.Helper.Scenes.Loaded.Count: " + vars.Helper.Scenes.Loaded.Count);
+    // vars.Log("loadingSceneIndex: " + current.loadingSceneIndex);
 }
 
 update
@@ -241,11 +280,16 @@ update
 	if(old.activeSceneIndex != current.activeSceneIndex && current.activeSceneIndex == 7)
 		current.loadingFromLevel = vars.GetLevel(old.activeSceneIndex);
 
+    // if (old.activeLevel != current.activeLevel) vars.Log("activeLevel: " + old.activeLevel + " -> " + current.activeLevel);
+    // if (old.loadingLevel != current.loadingLevel) vars.Log("loadingLevel: " + old.loadingLevel + " -> " + current.loadingLevel);
+    // if (old.loadingFromLevel != current.loadingFromLevel) vars.Log("loadingFromLevel: " + old.loadingFromLevel + " -> " + current.loadingFromLevel);
+    // if (old.loadingSceneIndex != current.loadingSceneIndex) vars.Log("loadingSceneIndex: " + old.loadingSceneIndex + " -> " + current.loadingSceneIndex);
+
 	// debugging below
-	if(vars.Helper["Location"].Changed)
+	if(vars.Helper["location"].Changed)
 	{
-		var oldloc = vars.Helper["Location"].Old;
-		var currloc = vars.Helper["Location"].Current;
+		var oldloc = vars.Helper["location"].Old;
+		var currloc = vars.Helper["location"].Current;
 		vars.Log("Location: " + vars.Locations[oldloc] + " [" + oldloc + "] -> " + vars.Locations[currloc] + " [" + currloc + "]");
 	}
 
@@ -254,7 +298,7 @@ update
 		if(vars.Helper[stat].Changed && vars.Helper[stat].Current > vars.StatMaxes[stat])
 		{
 			vars.StatMaxes[stat] = vars.Helper[stat].Current;
-			var loc = vars.Helper["Location"].Current;
+			var loc = vars.Helper["location"].Current;
 			vars.Log("Stat increase! " + stat + " increased to " + vars.StatMaxes[stat] + "! Location: " + vars.Locations[loc] + " [" + loc + "]");
 			return true;
 		}
@@ -264,13 +308,13 @@ update
 start
 {
 	// the trash room you spawn in is 34, and this gets updated once you gain control
-	return vars.Helper["Location"].Changed && vars.Helper["Location"].Current == 34;
+	return vars.Helper["location"].Changed && vars.Helper["location"].Current == 34;
 }
 
 split
 {
 	// End Split - 179 is the roof
-	if(vars.Helper["Incapacitated"].Changed && vars.Helper["Incapacitated"].Current && vars.Helper["Location"].Current == 179)
+	if(vars.Helper["Incapacitated"].Changed && vars.Helper["Incapacitated"].Current && vars.Helper["location"].Current == 179)
 	{
 		vars.Log("End detected! GG!");
 		return true;
@@ -300,6 +344,12 @@ split
 			return true;
 		}
 	}
+
+    if (settings["locations"] && old.location != current.location && settings["loc-" + current.location]) {
+        vars.CompletedSplits.Add("loc-" + current.location);
+        vars.Log("Entered " + current.location + "!");
+        return true;
+    }
 
 	// Equippables (Flashlight, etc)
 	if(vars.Helper["isEquipping"].Current

@@ -132,6 +132,11 @@
 				<Item ID="item-factory-lure-compound-2-name" Name="Bo'lepo pheromone mix" Description="It's a vial with glowing purple liquid." /> 
 				<Item ID="item-factory-lure-compound-3-name" Name="Triptocybin mushroom extract &quot;Reekus&quot;" Description="It's a vial with glowing green liquid." /> 
 			</Items>
+            <Locations>
+                <Location Index="100" Name="Hangar" />
+                <Location Index="125" Name="Toxic Dump" />
+                <Location Index="126" Name="Quarry" />
+            </Locations>
 		</Level>
 		<Level ID="Tape_Flash_1" Name="Lucas' Tape" EntryItem="radio-name">
 			<Scenes>
