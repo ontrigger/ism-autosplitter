@@ -168,6 +168,9 @@
 				<Item ID="item-forest-medalion-flash-1-name" Name="Cyclops Medallion" Description="A one eyed giant." /> 
 				<Item ID="item-hub-record-rosemary-name" Name="Vinyl - Rosemary" Description="A blue vinyl." /> 
 			</Items>
+            <Locations>
+                <Location Index="143" Name="Radar Top [Flash Bossfight]" />
+            </Locations>
 		</Level>
 		<Level ID="Tape_Rainbow_1" Name="Rainbow Tape" EntryItem="Any" ExitLevel="Any">
 			<Scenes>
@@ -180,6 +183,13 @@
 				<Item ID="item-final-boss-tape-4-name" Name="Tape - Flash" Description="I believe him." /> 
 				<Item ID="item-final-boss-tape-5-name" Name="Tape - Rainbow" Description="I have to defeat him." /> 
 			</Items>
+            <Splits>
+				<Split ID="use--item-final-boss-tape-1-name" Name="Finish Watcher Tape" /> 
+				<Split ID="use--item-final-boss-tape-2-name" Name="Finish Shade Tape" /> 
+				<Split ID="use--item-final-boss-tape-3-name" Name="Finish Bull Tape" /> 
+				<Split ID="use--item-final-boss-tape-4-name" Name="Finish Flash Tape" /> 
+				<Split ID="use--item-final-boss-tape-5-name" Name="Finish Rainbow Tape" /> 
+            </Splits>
 		</Level>
 	</Levels>
 </Data>

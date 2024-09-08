@@ -8,7 +8,7 @@ state("In Sound Mind")
 
 startup
 {
-	vars.Watch = (Action<string>)(key => { if(vars.Helper[key].Changed) vars.Log(key + ": " + vars.Helper[key].Old + " -> " + vars.Helper[key].Current); });
+	vars.Watch = (Action<string>)(key => { if (vars.Helper[key].Changed) vars.Log(key + ": " + vars.Helper[key].Old + " -> " + vars.Helper[key].Current); });
 
     Assembly.Load(File.ReadAllBytes("Components/asl-help")).CreateInstance("Unity");
     vars.Helper.GameName = "In Sound Mind";
@@ -31,6 +31,7 @@ startup
 	settings.Add("equippables", false, "Split on equippable pickup");
 	settings.Add("items", false, "Split on item pickup");
 	settings.Add("locations", false, "Split on entering location");
+	settings.Add("generic", false, "Split on other shit");
 	
 	foreach(var equippable in xml.Element("Equippables").Elements("Equippable"))
 	{
@@ -64,15 +65,15 @@ startup
 		var exitLevel = level.Attribute("ExitLevel") != null ? level.Attribute("ExitLevel").Value : "None";
 
 		// enter / exit
-		if(entryItem != "None" || exitLevel != "None")
+		if (entryItem != "None" || exitLevel != "None")
 		{
 			// settings.Add(levelId, false, levelName, "levels");
 
-			if(entryItem != "None")
+			if (entryItem != "None")
 			{
 				settings.Add(levelId + "_enter", false, "Enter " + levelName, "levels");
 				
-				if(entryItem != "Any")
+				if (entryItem != "Any")
 				{
 					vars.LevelEntryItems[levelId + "_item"] = entryItem;
 					settings.Add(levelId + "_item", false, "Only if you have the " + vars.EquippableLabels[entryItem] + ".", levelId + "_enter");
@@ -80,7 +81,7 @@ startup
 				}
 			}
 
-			if(exitLevel != "None")
+			if (exitLevel != "None")
 			{
 				settings.Add(levelId + "_exit", false, "Exit " + levelName, "levels");
 			}
@@ -90,7 +91,7 @@ startup
 		#region ItemSplit
 		// Item Splits
 		var levelItems = level.Element("Items");
-		if(levelItems != null)
+		if (levelItems != null)
         {
             string levelSetId = "item-" + levelId;
             settings.Add(levelSetId, false, levelName, "items");
@@ -114,7 +115,7 @@ startup
 		// Location Splits
 		var levelLocations = level.Element("Locations");
         
-		if(levelLocations != null)
+		if (levelLocations != null)
         {
             string levelLocationSetId = "loc-" + levelId;
             settings.Add(levelLocationSetId, false, levelName, "locations");
@@ -131,6 +132,24 @@ startup
             }
         }
 		#endregion
+
+        #region GenericSplit
+		var levelSplits = level.Element("Splits");
+        
+		if (levelSplits != null)
+        {
+            string levelSplitSetId = "split-" + levelId;
+            settings.Add(levelSplitSetId, false, levelName, "generic");
+
+            foreach(var split in levelSplits.Elements("Split"))
+            {
+                string splitId = split.Attribute("ID").Value;
+                string splitLabel = split.Attribute("Name").Value;
+
+                settings.Add(splitId, false, splitLabel, levelSplitSetId);
+            }
+        }
+        #endregion
 	}
 	#endregion
 
@@ -166,7 +185,7 @@ startup
 	{
 		foreach(string key in vars.LevelScenes.Keys)
 		{
-			if(vars.LevelScenes[key].Contains(scene))
+			if (vars.LevelScenes[key].Contains(scene))
 				return key;
 		}
 		return "";
@@ -264,6 +283,14 @@ onStart
     // vars.Log("loadingSceneIndex: " + current.loadingSceneIndex);
 }
 
+onReset
+{
+    // vars.Log("current location: "  )
+    if (current.location == 35) {
+        vars.Helper["location"].Write(41);
+    }
+}
+
 update
 {
 	current.isLoading = !current.isNotLoading;
@@ -271,13 +298,13 @@ update
 	current.activeSceneIndex = vars.Helper.Scenes.Active.Index;
 	current.loadingSceneIndex = vars.Helper.Scenes.Loaded.Count == 0 || vars.Helper.Scenes.Loaded[0].Index > 200 ? -1 : vars.Helper.Scenes.Loaded[0].Index;
 
-	if(current.loadingLevel == "empty" || current.loadingSceneIndex != old.loadingSceneIndex)
+	if (current.loadingLevel == "empty" || current.loadingSceneIndex != old.loadingSceneIndex)
 		current.loadingLevel = vars.GetLevel(current.loadingSceneIndex);
 
-	if(current.activeLevel == "empty" || current.activeSceneIndex != old.activeSceneIndex)
+	if (current.activeLevel == "empty" || current.activeSceneIndex != old.activeSceneIndex)
 		current.activeLevel = vars.GetLevel(current.activeSceneIndex);
 
-	if(old.activeSceneIndex != current.activeSceneIndex && current.activeSceneIndex == 7)
+	if (old.activeSceneIndex != current.activeSceneIndex && current.activeSceneIndex == 7)
 		current.loadingFromLevel = vars.GetLevel(old.activeSceneIndex);
 
     // if (old.activeLevel != current.activeLevel) vars.Log("activeLevel: " + old.activeLevel + " -> " + current.activeLevel);
@@ -286,7 +313,7 @@ update
     // if (old.loadingSceneIndex != current.loadingSceneIndex) vars.Log("loadingSceneIndex: " + old.loadingSceneIndex + " -> " + current.loadingSceneIndex);
 
 	// debugging below
-	if(vars.Helper["location"].Changed)
+	if (vars.Helper["location"].Changed)
 	{
 		var oldloc = vars.Helper["location"].Old;
 		var currloc = vars.Helper["location"].Current;
@@ -295,7 +322,7 @@ update
 
 	foreach(string stat in vars.Stats)
 	{
-		if(vars.Helper[stat].Changed && vars.Helper[stat].Current > vars.StatMaxes[stat])
+		if (vars.Helper[stat].Changed && vars.Helper[stat].Current > vars.StatMaxes[stat])
 		{
 			vars.StatMaxes[stat] = vars.Helper[stat].Current;
 			var loc = vars.Helper["location"].Current;
@@ -313,15 +340,20 @@ start
 
 split
 {
+    // var sw = Stopwatch.StartNew();
+    // vars.Log("split() start: 0ms");
+
 	// End Split - 179 is the roof
-	if(vars.Helper["Incapacitated"].Changed && vars.Helper["Incapacitated"].Current && vars.Helper["location"].Current == 179)
+	if (vars.Helper["Incapacitated"].Changed && vars.Helper["location"].Current == 179)
 	{
 		vars.Log("End detected! GG!");
 		return true;
 	}
 
+    // vars.Log("split(), end check: " + sw.ElapsedMilliseconds);
+
 	// Level Events (Enter / Exit)
-	if(settings["levels"] && current.loadingLevel != old.loadingLevel
+	if (settings["levels"] && current.loadingLevel != old.loadingLevel
 	   && current.loadingFromLevel != current.loadingLevel
 	   && current.loadingLevel != "" && current.loadingFromLevel != "")
 	{
@@ -329,7 +361,7 @@ split
 		string enterItem = current.loadingLevel + "_item";
 		string exit = current.loadingFromLevel + "_exit";
 
-		if(settings.ContainsKey(enter) && settings[enter] && !vars.CompletedSplits.Contains(enter)
+		if (settings.ContainsKey(enter) && settings[enter] && !vars.CompletedSplits.Contains(enter)
 		&& (!settings.ContainsKey(enterItem) || !settings[enterItem] || (settings[enterItem] && vars.FoundEquippables[vars.LevelEntryItems[enterItem]])))
 		{
 			vars.CompletedSplits.Add(enter);
@@ -337,7 +369,7 @@ split
 			return true;
 		}
 
-		if(settings.ContainsKey(exit) && settings[exit] && !vars.CompletedSplits.Contains(exit))
+		if (settings.ContainsKey(exit) && settings[exit] && !vars.CompletedSplits.Contains(exit))
 		{
 			vars.CompletedSplits.Add(exit);
 			vars.Log("Exiting " + current.loadingFromLevel + "!");
@@ -345,14 +377,18 @@ split
 		}
 	}
 
+    // vars.Log("split(), level check: " + sw.ElapsedMilliseconds);
+
     if (settings["locations"] && old.location != current.location && settings["loc-" + current.location]) {
         vars.CompletedSplits.Add("loc-" + current.location);
         vars.Log("Entered " + current.location + "!");
         return true;
     }
 
+    // vars.Log("split(), locations check: " + sw.ElapsedMilliseconds);
+
 	// Equippables (Flashlight, etc)
-	if(vars.Helper["isEquipping"].Current
+	if (vars.Helper["isEquipping"].Current
 	&& !vars.FoundEquippables[vars.Helper["CurrentEquipped"].Current])
 	{
 		vars.FoundEquippables[vars.Helper["CurrentEquipped"].Current] = true;
@@ -360,22 +396,49 @@ split
 		return settings[vars.Helper["CurrentEquipped"].Current];
 	}
 
+    // vars.Log("split(), equippables check: " + sw.ElapsedMilliseconds);
+
 	// Puzzle Items (In the inventory)
-	if(current.isLoading || current.inventoryUI == 0) return false;
+	if (!current.isLoading && current.inventoryUI != 0) {
+        current.visiblePuzzleItems = vars.ReadVisiblePuzzleItems(new IntPtr(current.inventoryUI));
+        foreach(var puzzleItem in current.visiblePuzzleItems)
+        {
+            var id = puzzleItem.DisplayName + "-" + puzzleItem.Chapter;
+            if (id == "item-hub-record-rosemary-name-") id += "C_Forest";
 
-	var visiblePuzzleItems = vars.ReadVisiblePuzzleItems(new IntPtr(current.inventoryUI));
-	foreach(var puzzleItem in visiblePuzzleItems)
-	{
-		var id = puzzleItem.DisplayName + "-" + puzzleItem.Chapter;
-		if(id == "item-hub-record-rosemary-name-") id += "C_Forest";
+            if (!settings[id] || vars.FoundItems[id])
+                continue;
+            
+            vars.FoundItems[id] = true;
+            vars.Log("Collected item: " + id);
+            return true;
+        }
 
-		if(!settings[id] || vars.FoundItems[id])
-			continue;
-		
-		vars.FoundItems[id] = true;
-		vars.Log("Collected item: " + id);
-		return true;
-	}
+        if (current.visiblePuzzleItems.Count == old.visiblePuzzleItems.Count - 1) {
+            foreach (var oldItem in old.visiblePuzzleItems) {
+                var found = false;
+                foreach (var currentItem in current.visiblePuzzleItems) {
+                    if (currentItem.DisplayName == oldItem.DisplayName) {
+                        found = true;
+                    }
+                }
+
+                if (!found) {
+                    vars.Log("Used " + oldItem.DisplayName);
+
+                    var key = "use--" + oldItem.DisplayName;
+                    if (settings.ContainsKey(key) && settings[key] && !vars.CompletedSplits.Contains(key)) {
+                        vars.CompletedSplits.Add(key);
+                        return true;
+                    }
+
+                    break;
+                }
+            }
+        }
+    }
+
+    // vars.Log("split(), items check: " + sw.ElapsedMilliseconds);
 }
 
 isLoading
