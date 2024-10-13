@@ -1,3 +1,0 @@
-# exclude other test scripts
-*.asl
-!insoundmind.asl
